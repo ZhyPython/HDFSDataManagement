@@ -1,0 +1,66 @@
+<template>
+<div class="hdfs-dir">
+    <div class="option-bar">
+        <el-input placeholder="" class="input-with-search" size="medium">
+            <el-button slot="append" icon="el-icon-search"></el-button>
+        </el-input>
+        <el-button size="medium" type="primary" icon="el-icon-upload"></el-button>
+        <el-button size="medium" type="primary" icon="el-icon-folder"></el-button>
+        <el-button size="medium" type="primary" icon="el-icon-delete"></el-button>
+    </div>
+
+    <div class="dir-position">
+        <el-input v-model="currentDir" size="medium">
+            <template slot="prepend">当前目录:</template>
+            <el-button slot="append" icon="el-icon-aim"></el-button>
+        </el-input>
+    </div>
+
+    <div class="show-table">
+        <HDFSTable :tableData="tableData"></HDFSTable>
+    </div>
+</div>
+</template>
+
+<script>
+import HDFSTable from './HDFSTable.vue';
+
+export default ({
+    name: 'HDFSDirectory',
+
+    data() {
+        return {
+            tableData: [],
+            currentDir: '/',        
+        }
+    },
+
+    components: {
+        HDFSTable,
+    },
+
+    // 初始化页面时就访问hdfs根目录获取数据
+    mounted () {
+    this.$axios.get("/webhdfs/v1?op=LISTSTATUS&user.name=hdfs")
+    .then(res=>{
+        this.tableData = this.$processFunc.parseDirectory(res.data);
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+    },
+
+    methods: {
+        handleDelete(index, row) {
+            console.log(index + row);
+        }
+    },
+})
+</script>
+
+<style scoped>
+.hdfs-dir {
+    margin-left: 100px;
+    margin-right: 100px;
+}
+</style>

@@ -1,27 +1,21 @@
 <template>
   <div id="app">
-    <div>
-      <HDFSTable></HDFSTable>
-      <el-row>
-        <el-col :span="18" :offset="3">
-          <el-divider></el-divider>
-        </el-col>
-      </el-row>
+      <HDFSDirectory></HDFSDirectory>
+      <el-divider></el-divider>
       <HDFSTag/>
-    </div>
     <router-view/>
   </div>
 </template>
 
 <script>
-import HDFSTable from './components/HDFSTable.vue'
+import HDFSDirectory from './components/HDFSDirectory.vue'
 import HDFSTag from './components/HDFSTag.vue'
 
 export default {
   name: 'App',
 
   components: {
-    HDFSTable,
+    HDFSDirectory,
     HDFSTag,
   }
 }
