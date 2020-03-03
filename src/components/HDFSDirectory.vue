@@ -4,9 +4,8 @@
         <el-input placeholder="" class="input-with-search" size="medium">
             <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
-        <el-button size="medium" type="primary" icon="el-icon-upload"></el-button>
-        <el-button size="medium" type="primary" icon="el-icon-folder"></el-button>
-        <el-button size="medium" type="primary" icon="el-icon-delete"></el-button>
+        
+        <OptBtnGroup/>
     </div>
 
     <div class="dir-position">
@@ -24,6 +23,7 @@
 
 <script>
 import HDFSTable from './HDFSTable.vue';
+import OptBtnGroup from './OptionBtnGroup.vue'
 
 export default ({
     name: 'HDFSDirectory',
@@ -31,29 +31,32 @@ export default ({
     data() {
         return {
             tableData: [],
-            currentDir: '/',        
+            currentDir: '/',       
         }
     },
 
     components: {
         HDFSTable,
+        OptBtnGroup,
     },
 
     // 初始化页面时就访问hdfs根目录获取数据
     mounted () {
     this.$axios.get("/webhdfs/v1?op=LISTSTATUS&user.name=hdfs")
-    .then(res=>{
+    .then(res => {
         this.tableData = this.$processFunc.parseDirectory(res.data);
     })
-    .catch(err=>{
-        console.log(err)
+    .catch(err => {
+        this.$notify.error({
+                    title: "失败",
+                    message: "获取信息失败",
+                    duration: 2000,
+                });
     })
     },
 
     methods: {
-        handleDelete(index, row) {
-            console.log(index + row);
-        }
+        
     },
 })
 </script>

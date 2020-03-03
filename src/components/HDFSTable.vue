@@ -66,5 +66,11 @@ export default {
             tableData: [],
         }
     },
+
+    methods: {
+        handleDelete(index, row) {
+            console.log(index + row);
+        }
+    },
 }
 </script>

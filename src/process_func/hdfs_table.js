@@ -18,7 +18,14 @@ export default {
                 data.push(objs[i]);
             }
         }
-        return data;
-            
-    }    
+        return data;     
+    },
+    
+    uploadFile(localDir, remoteDir) {
+        
+    },
+
+    mkdir() {
+
+    },
 }
