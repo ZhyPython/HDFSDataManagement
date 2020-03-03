@@ -49,8 +49,8 @@ export default ({
     .catch(err => {
         this.$notify.error({
                     title: "失败",
-                    message: "获取信息失败",
-                    duration: 2000,
+                    message: "获取信息失败:" + err,
+                    duration: 3000,
                 });
     })
     },
