@@ -25,9 +25,16 @@ export default {
         return data;     
     },
     
-    uploadFile(localDir, remoteDir) {
-        
-    },
+    append_path: function(prefix, s) {
+        let l = prefix.length;
+        let p = l > 0 && prefix[l - 1] == '/' ? prefix.substring(0, l - 1) : prefix;
+        return p + '/' + s;
+      },
 
+    encode_path: function(abs_path) {
+        abs_path = encodeURIComponent(abs_path);
+        var re = /%2F/g;
+        return abs_path.replace(re, '/');
+      }
     
 }

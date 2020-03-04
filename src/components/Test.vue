@@ -9,6 +9,7 @@
 
 <script lang="ts">
 import axios from 'axios';
+import func from '../../vue-temp/vue-editor-bridge';
 
 export default ({
     name: 'Test',
@@ -27,6 +28,11 @@ export default ({
       .catch(function (error) { // 请求失败处理
         window.alert("请求错误" + error);
       });
-  }
+    },
+    methods: {
+          test: function() {
+            
+          }
+        },
 })
 </script>
