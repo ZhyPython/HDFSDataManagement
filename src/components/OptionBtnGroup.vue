@@ -52,7 +52,7 @@
             <el-button size="small" @click="mkdirDialogVisible = false">取 消</el-button>
             <el-button size="small" 
                     type="primary" 
-                    @click="btnMkdir(currentDir+inputDir, defaultPermisson)">确 定
+                    @click="btnMkdir">确 定
             </el-button>
         </span>
     </el-dialog>
@@ -68,7 +68,11 @@
 
 <script>
 export default {
-    name: 'OptBtnGroup',
+    name: 'OptionBtnGroup',
+
+    props: {
+        currentDir: '',
+    },
 
     data() {
         return {
@@ -76,8 +80,6 @@ export default {
             uploadDialogVisible: false,
             btnText: '上传到集群',
             inputDir: '',
-            currentDir: '/',
-            defaultPermisson: 775,
             fileList: [],
         }
     },
@@ -135,7 +137,7 @@ export default {
                                 async: false,
                             })
                             .done(res => {
-                                console.log(res);
+                                // console.log(res);
                                 console.log("upload success");
                                 numCompleted++;
                                 if (numCompleted == files.length) {
@@ -150,7 +152,8 @@ export default {
                                     this.$refs.upload.clearFiles();
                                     this.fileList = [];
                                     // 更新表格数据
-                                    this.$emit('refreshDir', true);
+                                    this.$emit('refreshDir', true, this.currentDir);
+                                    this.btnText = '上传到集群'
                                 }
                             })
                             .catch(err => {
@@ -182,11 +185,12 @@ export default {
                     });
         },
 
-        btnMkdir(dir, permission) {
-            this.$axios.put("/webhdfs/v1"
-                            + dir 
-                            + "?op=MKDIRS&user.name=hdfs&permission="
-                            + permission)
+        btnMkdir() {
+            let dir = this.$processFunc.append_path(this.currentDir, this.inputDir);
+            let url = "/webhdfs/v1"
+                      + dir 
+                      + "?op=MKDIRS&user.name=hdfs&permission=775"
+            this.$axios.put(url)
             .then(res => {
                 if (res.status == 200) {
                     this.mkdirDialogVisible = false
@@ -195,6 +199,8 @@ export default {
                         message: "创建文件夹成功！",
                         duration: 3000,
                     });
+                    // 更新表格数据
+                    this.$emit('refreshDir', true, this.currentDir);
                 }
             })
             .catch(err => {

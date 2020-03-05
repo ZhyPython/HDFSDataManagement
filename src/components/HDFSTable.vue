@@ -6,9 +6,15 @@
         highlight-current-row="true">
         <!-- <el-table-column type="selection" width="55"></el-table-column> -->
         <el-table-column 
-            prop="pathSuffix" 
             label="名称" 
             sortable="true">
+            <template slot-scope="scope">
+                <i :class="scope.row.type === 'FILE' ? 'el-icon-document' : 'el-icon-folder'"></i>
+                <el-link 
+                    type="primary" 
+                    @click="showDetailDialog(scope.row)">{{ scope.row.pathSuffix }}
+                </el-link>
+            </template>
         </el-table-column>
         <el-table-column 
             prop="permission" 
@@ -108,7 +114,29 @@ export default {
             })
 
             this.deleteDialogVisible = false;
-        }
+        },
+
+        showDetailDialog(file) {
+            if (file.type == 'FILE') {
+                // todo:打开对话框，查看文件信息，提供下载功能
+            }
+            if (file.type == 'DIRECTORY') {
+                // 进入下一级目录
+                let url = '/webhdfs/v1' 
+                          + this.$processFunc.append_path(this.currentDir, file.pathSuffix);
+                // window.alert(url)
+                this.$emit(
+                    'enterDir', 
+                    true, 
+                    this.$processFunc.append_path(this.currentDir, file.pathSuffix)
+                );  
+                // 更新currentDir的值
+                this.$emit(
+                    'changeCurrentDir',
+                    this.$processFunc.append_path(this.currentDir, file.pathSuffix)
+                )
+            }
+        },
     },
 }
 </script>

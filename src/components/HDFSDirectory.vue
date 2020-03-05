@@ -5,7 +5,8 @@
             <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
         
-        <OptBtnGroup/>
+        <OptionBtnGroup :currentDir="currentDir" @refreshDir="refreshDir">
+        </OptionBtnGroup>
     </div>
 
     <div class="dir-position">
@@ -18,7 +19,8 @@
     <div class="show-table">
         <HDFSTable :tableData="tableData" 
                    :currentDir="currentDir"
-                   @refreshDir="refreshDir">
+                   @enterDir="refreshDir"
+                   @changeCurrentDir="changeCurrentDir">
         </HDFSTable>
     </div>
 </div>
@@ -26,7 +28,7 @@
 
 <script>
 import HDFSTable from './HDFSTable.vue';
-import OptBtnGroup from './OptionBtnGroup.vue'
+import OptionBtnGroup from './OptionBtnGroup.vue'
 
 export default ({
     name: 'HDFSDirectory',
@@ -40,7 +42,7 @@ export default ({
 
     components: {
         HDFSTable,
-        OptBtnGroup,
+        OptionBtnGroup,
     },
 
     // 初始化页面时就访问hdfs根目录获取数据
@@ -67,10 +69,14 @@ export default ({
             })
         },
 
-        refreshDir(flag) {
+        refreshDir(flag, currentDir) {
             if (flag == true) {
-                this.initDir(dir);
+                this.initDir(currentDir);
             }
+        },
+
+        changeCurrentDir(dir) {
+            this.currentDir = dir;
         }
 
     },
