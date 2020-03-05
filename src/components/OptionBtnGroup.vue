@@ -97,10 +97,7 @@ export default {
 
             // 以特定的格式定义存储上传文件的列表
             let files = [];
-            let numCompletedd = 0;
-
-            // ajax内部无法使用vue的this引用，所以定义一个this.$notify引用
-            let ajaxNotify = this.$notify;
+            let numCompleted = 0;
             
             // 将要传输的对象从this.fileList中取出放入files列表中
             // 以{url: File}为形式存储
@@ -133,21 +130,26 @@ export default {
                                 data: files[i][url],
                                 processData: false,
                                 crossDomain: true,
+                                // async: false,
                             })
-                            .then(function(data) {
+                            .then(res => {
                                 console.log("upload success");
-                                // todo:关闭对话框
-                                ajaxNotify.success({
-                                    title: "成功",
-                                    message: "上传文件成功！",
-                                    duration: 3000,
-                                });
+                                numCompleted++;
+                                if (numCompleted == files.length) {
+                                    // 关闭对话框
+                                    this.uploadDialogVisible = false;
+                                    this.$notify.success({
+                                        title: "成功",
+                                        message: "上传文件成功！",
+                                        duration: 3000,
+                                    });
+                                }
                             })
-                            .catch(function(error) {
+                            .catch(err => {
                                 console.log("upload failed");
-                                ajaxNotify.error({
+                                this.$notify.error({
                                     title: "失败",
-                                    message: "上传文件失败",
+                                    message: files[i][url]["name"] + "上传失败",
                                     duration: 3000,
                                 });
                             })
