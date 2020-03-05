@@ -50,6 +50,18 @@
             </template>
         </el-table-column>
     </el-table>
+
+    <el-dialog
+        title='删除文件'
+        :visible.sync="deleteDialogVisible"
+        width="30%"
+        :lock-scroll=false>
+        <span>确定删除 {{ fileName }} ?</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="deleteDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="deleteFile(fileName)">确 定</el-button>
+        </span>
+    </el-dialog>    
 </div>
 </template>
 
@@ -59,17 +71,43 @@ export default {
 
     props: {
         tableData: Array,
+        currentDir: '',
     },
 
     data() {
         return {
             tableData: [],
+            fileName: '',
+            fileIndex: null,
+            deleteDialogVisible: false,
         }
     },
 
     methods: {
         handleDelete(index, row) {
-            console.log(index + row);
+            this.deleteDialogVisible = true;
+            this.fileName = row["pathSuffix"];
+            this.fileIndex = index;
+        },
+
+        deleteFile(fileName) {
+            let url = '/webhdfs/v1' + this.currentDir;
+            // 防止当前目录最后一位是'/'，所以用append_path拼接字符串
+            url = this.$processFunc.append_path(url, fileName);
+            url = url + '?op=DELETE&recursive=true&user.name=hdfs';
+            //axios调用接口访问hdfs目录
+            this.$axios.delete(url)
+            .then(res => {
+                console.log(res);
+                if (res.status == 200) {
+                    this.tableData.splice(this.fileIndex, 1);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+            this.deleteDialogVisible = false;
         }
     },
 }

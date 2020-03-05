@@ -3,7 +3,7 @@ export default {
         console.log(obj);
     },
 
-    parseDirectory: function(jsonObj, dir='/',) {
+    parseDirectory: function(jsonObj) {
         // 返回的填充表格的数据,表格中每一行的数据对象
         var data = [];
         // 获取目录信息对象{ FileStatus: [][] }

@@ -16,7 +16,10 @@
     </div>
 
     <div class="show-table">
-        <HDFSTable :tableData="tableData"></HDFSTable>
+        <HDFSTable :tableData="tableData" 
+                   :currentDir="currentDir"
+                   @refreshDir="refreshDir">
+        </HDFSTable>
     </div>
 </div>
 </template>
@@ -42,21 +45,34 @@ export default ({
 
     // 初始化页面时就访问hdfs根目录获取数据
     mounted () {
-    this.$axios.get("/webhdfs/v1?op=LISTSTATUS&user.name=hdfs")
-    .then(res => {
-        this.tableData = this.$processFunc.parseDirectory(res.data);
-    })
-    .catch(err => {
-        this.$notify.error({
-                    title: "失败",
-                    message: "获取信息失败:" + err,
-                    duration: 3000,
-                });
-    })
+        this.initDir();
     },
 
     methods: {
-        
+        initDir(currentDir='/') {
+            // 拼接字符串
+            let url = '/webhdfs/v1' + currentDir;
+            url = url + '?op=LISTSTATUS&user.name=hdfs';
+
+            this.$axios.get(url)
+            .then(res => {
+                this.tableData = this.$processFunc.parseDirectory(res.data);
+            })
+            .catch(err => {
+                this.$notify.error({
+                            title: "失败",
+                            message: "获取信息失败:" + err,
+                            duration: 3000,
+                        });
+            })
+        },
+
+        refreshDir(flag) {
+            if (flag == true) {
+                this.initDir(dir);
+            }
+        }
+
     },
 })
 </script>

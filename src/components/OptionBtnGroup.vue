@@ -12,24 +12,24 @@
         :lock-scroll=false
         width="30%"
         :visible.sync="uploadDialogVisible">
-    <el-upload
-        class="upload-btn"
-        ref="upload"
-        action="123"
-        :on-change="fileSaveToUrl"
-        :on-remove="handleRemove"
-        :file-list="fileList"
-        :auto-upload="false">
-        <el-button slot="trigger" 
-                   size="small" 
-                   type="primary">选取文件
-        </el-button>
-    </el-upload>
+        <el-upload
+            class="upload-btn"
+            ref="upload"
+            action="123"
+            :on-change="fileSave"
+            :on-remove="handleRemove"
+            :file-list="fileList"
+            :auto-upload="false">
+            <el-button slot="trigger" 
+                    size="small" 
+                    type="primary">选取文件
+            </el-button>
+        </el-upload>
         <span slot="footer" class="dialog-footer">
             <el-button size="small" @click="uploadDialogVisible = false">取 消</el-button>
             <el-button style="margin-left: 10px;" 
                        size="small" type="success" 
-                       @click="submitUpload">上传到集群
+                       @click="submitUpload">{{ btnText }}
             </el-button>
         </span>
     </el-dialog>
@@ -45,16 +45,16 @@
         :lock-scroll=false
         width="40%"
         :visible.sync="mkdirDialogVisible">
-    <el-input placeholder="" v-model="inputDir">
-        <template slot="prepend">{{ currentDir }}</template>
-    </el-input>
-    <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="mkdirDialogVisible = false">取 消</el-button>
-        <el-button size="small" 
-                   type="primary" 
-                   @click="btnMkdir(currentDir+inputDir, defaultPermisson)">确 定
-        </el-button>
-    </span>
+        <el-input placeholder="" v-model="inputDir">
+            <template slot="prepend">{{ currentDir }}</template>
+        </el-input>
+        <span slot="footer" class="dialog-footer">
+            <el-button size="small" @click="mkdirDialogVisible = false">取 消</el-button>
+            <el-button size="small" 
+                    type="primary" 
+                    @click="btnMkdir(currentDir+inputDir, defaultPermisson)">确 定
+            </el-button>
+        </span>
     </el-dialog>
 
     <el-button 
@@ -74,6 +74,7 @@ export default {
         return {
             mkdirDialogVisible: false,
             uploadDialogVisible: false,
+            btnText: '上传到集群',
             inputDir: '',
             currentDir: '/',
             defaultPermisson: 775,
@@ -82,7 +83,7 @@ export default {
     },
 
     methods: {
-        fileSaveToUrl(file, fileList) {
+        fileSave(file, fileList) {
             this.fileList = fileList;
         },
 
@@ -121,6 +122,7 @@ export default {
                 // 提交第一次请求获取返回的URI
                 this.$axios.put(url)
                 .then(res => {
+                    this.btnText = '上传中...';
                     if ('Location' in res.data) {
                         location = res.data["Location"];
                         // data参数为url对应的文件对象
@@ -130,9 +132,10 @@ export default {
                                 data: files[i][url],
                                 processData: false,
                                 crossDomain: true,
-                                // async: false,
+                                async: false,
                             })
-                            .then(res => {
+                            .done(res => {
+                                console.log(res);
                                 console.log("upload success");
                                 numCompleted++;
                                 if (numCompleted == files.length) {
@@ -143,6 +146,11 @@ export default {
                                         message: "上传文件成功！",
                                         duration: 3000,
                                     });
+                                    // 清除上传列表
+                                    this.$refs.upload.clearFiles();
+                                    this.fileList = [];
+                                    // 更新表格数据
+                                    this.$emit('refreshDir', true);
                                 }
                             })
                             .catch(err => {
