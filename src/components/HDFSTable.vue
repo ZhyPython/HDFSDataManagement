@@ -3,7 +3,7 @@
     <el-table 
         :data="tableData"  
         height="500" 
-        highlight-current-row="true">
+        highlight-current-row>
         <!-- <el-table-column type="selection" width="55"></el-table-column> -->
         <el-table-column 
             label="名称" 
@@ -67,25 +67,44 @@
             <el-button @click="deleteDialogVisible = false">取 消</el-button>
             <el-button type="primary" @click="deleteFile(fileName)">确 定</el-button>
         </span>
-    </el-dialog>    
+    </el-dialog> 
+
+    <FileInfo
+        :fileName="fileName"
+        :currentDir="currentDir"
+        :fileInfoDialogVisible="fileInfoDialogVisible"
+        @closeFileInfoDialog="closeFileInfoDialog">
+    </FileInfo>   
 </div>
 </template>
 
 <script>
+import FileInfo from './FileInfo.vue';
+
 export default {
     name: 'HDFSTable',
 
     props: {
-        tableData: Array,
-        currentDir: '',
+        tableData: {
+            type: Array,
+            default: []
+        },
+        currentDir: {
+            type: String,
+            default: ''
+        },
+    },
+
+    components: {
+        FileInfo,
     },
 
     data() {
         return {
-            tableData: [],
             fileName: '',
             fileIndex: null,
             deleteDialogVisible: false,
+            fileInfoDialogVisible: false,
         }
     },
 
@@ -107,10 +126,20 @@ export default {
                 console.log(res);
                 if (res.status == 200) {
                     this.tableData.splice(this.fileIndex, 1);
+                    this.$notify.success({
+                        title: "成功",
+                        message: "删除文件成功！",
+                        duration: 3000,
+                    });
                 }
             })
             .catch(err => {
                 console.log(err);
+                this.$notify.error({
+                    title: "失败",
+                    message: "删除文件失败",
+                    duration: 3000,
+                });
             })
 
             this.deleteDialogVisible = false;
@@ -119,6 +148,9 @@ export default {
         showDetailDialog(file) {
             if (file.type == 'FILE') {
                 // todo:打开对话框，查看文件信息，提供下载功能
+                this.fileInfoDialogVisible = true;
+                // 对话框标题带有文件名
+                this.fileName = file.pathSuffix;
             }
             if (file.type == 'DIRECTORY') {
                 // 进入下一级目录
@@ -137,6 +169,12 @@ export default {
                 )
             }
         },
+
+        // 关闭文件信息子组件对话框
+        closeFileInfoDialog() {
+            this.fileInfoDialogVisible = false;
+        }
+
     },
 }
 </script>

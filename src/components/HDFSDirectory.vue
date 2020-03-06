@@ -4,15 +4,22 @@
         <el-input placeholder="" class="input-with-search" size="medium">
             <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
-        
+
         <OptionBtnGroup :currentDir="currentDir" @refreshDir="refreshDir">
         </OptionBtnGroup>
     </div>
 
     <div class="dir-position">
-        <el-input v-model="currentDir" size="medium">
+        <el-input 
+            v-model="currentDir" 
+            size="medium"
+            @keyup.enter.native="refreshDir(true, currentDir)">
             <template slot="prepend">当前目录:</template>
-            <el-button slot="append" icon="el-icon-aim"></el-button>
+            <el-button 
+                slot="append" 
+                icon="el-icon-aim" 
+                @click="refreshDir(true, currentDir)">
+            </el-button>
         </el-input>
     </div>
 

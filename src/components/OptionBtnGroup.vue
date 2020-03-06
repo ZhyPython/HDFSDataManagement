@@ -1,6 +1,6 @@
 <template>
 <div class="opt-btn-group">
-<el-button-group>
+
     <el-button 
         size="medium" 
         type="primary" 
@@ -38,7 +38,7 @@
         size="medium"
         type="primary" 
         @click="mkdirDialogVisible = true" 
-        icon="el-icon-folder">
+        icon="el-icon-folder-add">
     </el-button>
     <el-dialog
         title="新建目录"
@@ -60,9 +60,9 @@
     <el-button 
         size="medium" 
         type="primary" 
-        icon="el-icon-delete">
+        icon="el-icon-back">
     </el-button>
-</el-button-group>
+
 </div>
 </template>
 
@@ -71,7 +71,10 @@ export default {
     name: 'OptionBtnGroup',
 
     props: {
-        currentDir: '',
+        currentDir: {
+            type: String,
+            default: ''
+        },
     },
 
     data() {
