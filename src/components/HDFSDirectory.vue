@@ -1,15 +1,9 @@
 <template>
 <div class="hdfs-dir">
     <div class="option-bar">
-        <el-input placeholder="" class="input-with-search" size="medium">
-            <el-button slot="append" icon="el-icon-search"></el-button>
-        </el-input>
-
         <OptionBtnGroup :currentDir="currentDir" @refreshDir="refreshDir">
         </OptionBtnGroup>
-    </div>
-
-    <div class="dir-position">
+    
         <el-input 
             v-model="currentDir" 
             size="medium"
@@ -19,6 +13,21 @@
                 slot="append" 
                 icon="el-icon-aim" 
                 @click="refreshDir(true, currentDir)">
+            </el-button>
+        </el-input>
+    
+        <el-input 
+            placeholder="输入文件名在当前目录下搜索文件" 
+            size="medium"
+            clearable
+            @clear="recoveryDir"
+            @keyup.enter.native="searchFile"
+            @input="searchFile"
+            v-model="searchString">
+            <el-button 
+                slot="prepend" 
+                icon="el-icon-search"
+                @click="searchFile">
             </el-button>
         </el-input>
     </div>
@@ -43,8 +52,13 @@ export default ({
     data() {
         return {
             tableData: [],
-            currentDir: '/',       
+            currentDir: '/',   
+            searchString: '',
         }
+    },
+
+    computed: {
+        
     },
 
     components: {
@@ -84,7 +98,26 @@ export default ({
 
         changeCurrentDir(dir) {
             this.currentDir = dir;
-        }
+        },
+
+        searchFile() {
+            if (this.searchString == '') {
+                this.initDir(this.currentDir);
+            }
+            // 定义一个正则表达式进行文件名的匹配，参数 i 表示不区分大小写
+            let reg = new RegExp(this.searchString, 'i');
+            let tempArr = [];
+            for (let i = 0; i < this.tableData.length; i++) {
+                if (reg.test(this.tableData[i].pathSuffix)) {
+                    tempArr.push(this.tableData[i]);
+                }
+            }
+            this.tableData = tempArr;
+        },
+
+        recoveryDir() {
+            this.initDir(this.currentDir);
+        },
 
     },
 })

@@ -131,6 +131,11 @@ export default {
                         message: "删除文件成功！",
                         duration: 3000,
                     });
+                    this.$emit(
+                        'enterDir', 
+                        true, 
+                        this.currentDir
+                    );  
                 }
             })
             .catch(err => {
