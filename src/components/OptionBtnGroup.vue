@@ -1,12 +1,23 @@
 <template>
 <div class="opt-btn-group">
 
-    <el-button 
-        size="medium" 
-        type="primary" 
-        icon="el-icon-upload"
-        @click="uploadDialogVisible = true">
-    </el-button>
+    <el-tooltip effect="dark" content="回退至上级目录" placement="top">
+        <el-button 
+            size="medium" 
+            plain
+            icon="el-icon-back" 
+            @click="goParentDir">
+        </el-button>
+    </el-tooltip>
+
+    <el-tooltip effect="dark" content="上传文件到集群" placement="top">
+        <el-button 
+            size="medium" 
+            plain
+            icon="el-icon-upload"
+            @click="uploadDialogVisible = true">
+        </el-button>
+    </el-tooltip>
     <el-dialog
         title="上传文件"
         :lock-scroll=false
@@ -34,12 +45,14 @@
         </span>
     </el-dialog>
 
-    <el-button 
-        size="medium"
-        type="primary" 
-        @click="mkdirDialogVisible = true" 
-        icon="el-icon-folder-add">
-    </el-button>
+    <el-tooltip effect="dark" content="新建文件夹" placement="top">
+        <el-button 
+            size="medium"
+            plain
+            icon="el-icon-folder-add"
+            @click="mkdirDialogVisible = true">
+        </el-button>
+    </el-tooltip>
     <el-dialog
         title="新建目录"
         :lock-scroll=false
@@ -56,12 +69,6 @@
             </el-button>
         </span>
     </el-dialog>
-
-    <el-button 
-        size="medium" 
-        type="primary" 
-        icon="el-icon-back">
-    </el-button>
 
 </div>
 </template>
@@ -213,7 +220,27 @@ export default {
                     duration: 3000,
                 });
             })
-        }
+        },
+
+        goParentDir() {
+            let dir = this.currentDir;
+            // 拆分目录元素为数组，若为根目录，则直接return
+            if (dir == '/') {
+                return
+            }
+            else {
+                let arr = dir.split('/');
+                // 移除数组中第一个空元素和最后一个元素
+                arr.shift();
+                arr.pop();
+                // 拼接为上级目录返回
+                let parentDir =  '/' + arr.join('/');
+                // 更新表格数据
+                this.$emit('refreshDir', true, parentDir);
+                // 更新this.currentDir的值
+                this.$emit('backParentDir', parentDir);
+            } 
+        },
     },
 }
 </script>

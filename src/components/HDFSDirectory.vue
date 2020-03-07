@@ -1,7 +1,10 @@
 <template>
 <div class="hdfs-dir">
     <div class="option-bar">
-        <OptionBtnGroup :currentDir="currentDir" @refreshDir="refreshDir">
+        <OptionBtnGroup 
+            :currentDir="currentDir" 
+            @refreshDir="refreshDir"
+            @backParentDir="backParentDir">
         </OptionBtnGroup>
     
         <el-input 
@@ -94,6 +97,10 @@ export default ({
             if (flag == true) {
                 this.initDir(currentDir);
             }
+        },
+
+        backParentDir(dir) {
+            this.currentDir = dir;
         },
 
         changeCurrentDir(dir) {
