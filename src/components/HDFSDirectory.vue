@@ -83,11 +83,25 @@ export default ({
             this.$axios.get(url)
             .then(res => {
                 this.tableData = this.$processFunc.parseDirectory(res.data);
+                // 格式化显示权限、大小、修改时间
+                // console.log(this.tableData);
+                for(let i = 0; i < this.tableData.length; i++) {
+                    // 转换所有者、所有组权限
+                    let tmpPermission = this.$processFunc.helperToPermission(this.tableData[i].permission);
+                    // 转换文件类型
+                    this.tableData[i].permission = this.$processFunc.helperToDirectory(this.tableData[i].type)
+                                                   + tmpPermission;
+                    // 转换大小
+                    this.tableData[i].length = this.$processFunc.formatBytes(this.tableData[i].length);
+                    this.tableData[i].blockSize = this.$processFunc.formatBytes(this.tableData[i].blockSize);
+                    // 转换修改时间
+                    this.tableData[i].modificationTime = this.$processFunc.dateToString(this.tableData[i].modificationTime);
+                }
             })
             .catch(err => {
                 this.$notify.error({
                             title: "失败",
-                            message: "获取信息失败:" + err,
+                            message: "刷新目录表格失败",
                             duration: 3000,
                         });
             })
