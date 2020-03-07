@@ -106,7 +106,10 @@ export default {
                     message: "未选择任何文件！",
                     duration: 3000,
                 }); 
-            };
+            }
+            else {
+                this.btnText = '上传中...';
+            }
 
             // 以特定的格式定义存储上传文件的列表
             let files = [];
@@ -134,7 +137,6 @@ export default {
                 // 提交第一次请求获取返回的URI
                 this.$axios.put(url)
                 .then(res => {
-                    this.btnText = '上传中...';
                     if ('Location' in res.data) {
                         location = res.data["Location"];
                         // data参数为url对应的文件对象
