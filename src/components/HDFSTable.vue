@@ -26,7 +26,7 @@
         </el-table-column>
         <el-table-column 
             prop="group" 
-            label="所有组">
+            label="用户组">
         </el-table-column>
         <el-table-column 
             prop="length" 
@@ -57,7 +57,7 @@
                         <el-dropdown-item @click.native="handleDelete(scope.$index, scope.row)">删除文件</el-dropdown-item>
                         <el-dropdown-item @click.native="handlePermission(scope.$index, scope.row)">更改权限</el-dropdown-item>
                         <el-dropdown-item @click.native="handleOwner(scope.$index, scope.row)">更改所有者</el-dropdown-item>
-                        <el-dropdown-item @click.native="handleGroup(scope.$index, scope.row)">更改所有组</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleGroup(scope.$index, scope.row)">更改用户组</el-dropdown-item>
                         <el-dropdown-item @click.native="handleReplication(scope.$index, scope.row)">更改副本数量</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -91,11 +91,11 @@
     </el-dialog>
 
     <el-dialog
-        title='设置文件的所有组'
+        title='设置文件的用户组'
         :visible.sync="groupDialogVisible"
         width="30%"
         :lock-scroll=false>
-        <span>更改所有组：</span>
+        <span>更改用户组：</span>
         <el-input v-model="group" style="width:40%"></el-input>
         <span slot="footer" class="dialog-footer">
             <el-button size="medium" @click="groupDialogVisible = false">取 消</el-button>
@@ -120,6 +120,48 @@
         <span slot="footer" class="dialog-footer">
             <el-button size="medium" @click="replicationDialogVisible = false">取 消</el-button>
             <el-button size="medium" type="primary" @click="setReplication">{{ btnText }}</el-button>
+        </span>
+    </el-dialog>
+
+    <el-dialog
+        title='设置文件权限'
+        :visible.sync="permissionDialogVisible"
+        width="35%"
+        :lock-scroll=false>
+        <div class="uesr-permission">
+            <span style="display: inline">所有者：</span>
+            <el-checkbox-group 
+                v-model="checkListUser" 
+                style="display: inline; margin-left:14px">
+                <el-checkbox label="可读"></el-checkbox>
+                <el-checkbox label="可写"></el-checkbox>
+                <el-checkbox label="可执行"></el-checkbox>
+            </el-checkbox-group>
+        </div>
+        <div class="group-permission">
+            <span style="display: inline">用户组：</span>
+            <el-checkbox-group 
+                v-model="checkListGroup" 
+                style="display: inline; margin-left:14px">
+                <el-checkbox label="可读"></el-checkbox>
+                <el-checkbox label="可写"></el-checkbox>
+                <el-checkbox label="可执行"></el-checkbox>
+            </el-checkbox-group>
+        </div>
+        <div class="other-permission">
+            <span style="display: inline">其他用户：</span>
+            <el-checkbox-group 
+                v-model="checkListOther" 
+                style="display: inline">
+                <el-checkbox label="可读"></el-checkbox>
+                <el-checkbox label="可写"></el-checkbox>
+                <el-checkbox label="可执行"></el-checkbox>
+                <el-checkbox label="粘着位SBIT" :disabled="SBIT"></el-checkbox>
+            </el-checkbox-group>
+        </div>
+        <span slot="footer" class="dialog-footer">
+            <el-button size="medium" @click="permissionDialogVisible = false">取 消</el-button>
+            <el-button size="medium" type="primary" @click="setPermission">{{ btnText }}</el-button>
         </span>
     </el-dialog>
 
@@ -170,6 +212,10 @@ export default {
             permisson: '',
             replicationDialogVisible: false,
             replication: null,
+            checkListUser: [],
+            checkListGroup: [],
+            checkListOther: [],
+            SBIT: null,
         }
     },
 
@@ -247,10 +293,55 @@ export default {
 
         handlePermission(index, row) {
             this.permissionDialogVisible = true;
+            this.fileIndex = index;
+            this.rowObj = row;
+            // 初始化对话框内的权限显示
+            let perm = this.rowObj.permission;
+            let permObj = this.$processFunc.initPermDialog(perm);
+            this.checkListUser = permObj.checkListUser;
+            this.checkListGroup = permObj.checkListGroup;
+            this.checkListOther = permObj.checkListOther;
+            // 粘着位是否显示
+            if (row.type == 'FILE') {
+                this.SBIT = true;
+            }
+            if (row.type == 'DIRECTORY') {
+                this.SBIT = false;
+            }
         },
 
         setPermission() {
-
+            // 八进制权限
+            var tempPerm = this.$processFunc.getOctalPermission(this.checkListUser);
+            tempPerm += this.$processFunc.getOctalPermission(this.checkListGroup);
+            tempPerm += this.$processFunc.getOctalPermission(this.checkListOther);
+            // 拼接请求字符串
+            let url = '/webhdfs/v1' 
+                      + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
+            url = url + '?op=SETPERMISSION&permission=' + tempPerm + '&user.name=hdfs';
+            this.$axios.put(url)
+            .then(res => {
+                if (res.status == 200) {
+                    // 关闭对话框，将按钮和输入框的内容恢复至初始状态
+                    this.permissionDialogVisible = false;
+                    this.tableData[this.fileIndex].permission = this.$processFunc.helperToDirectory(this.rowObj.type)
+                                                               + this.$processFunc.helperToPermission(parseInt(tempPerm));
+                    console.log(this.tableData[this.fileIndex].permission)
+                    this.$notify.success({
+                        title: "成功",
+                        message: "成功更改文件权限",
+                        duration: 3000,
+                    });
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                this.$notify.error({
+                    title: "失败",
+                    message: "更改文件权限失败",
+                    duration: 3000,
+                });
+            })
         },
         
         handleOwner(index, row) {
@@ -284,6 +375,7 @@ export default {
                 }
             })
             .catch(err => {
+                this.btnText = '更 改';
                 console.log(err);
                 this.$notify.error({
                     title: "失败",
@@ -324,6 +416,7 @@ export default {
                 }
             })
             .catch(err => {
+                this.btnText = '更 改';
                 console.log(err);
                 this.$notify.error({
                     title: "失败",
@@ -364,6 +457,7 @@ export default {
                 }
             })
             .catch(err => {
+                this.btnText = '更 改';
                 console.log(err);
                 this.$notify.error({
                     title: "失败",

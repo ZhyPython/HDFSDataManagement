@@ -99,6 +99,54 @@ export default {
 
     helperToDirectory: function(v) {
         return v === 'DIRECTORY' ? 'd' : '-';
-    }
+    },
+
+    initPermDialog(str) {
+        var symbols = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
+        var showLabel = [[], ['可执行'], ['可写'], 
+                         ['可写', '可执行'], ['可读'], 
+                         ['可读', '可执行'], ['可读', '可写'], 
+                         ['可读', '可写', '可执行']]
+        var userPerm = str.slice(1, 4);
+        var groupPerm = str.slice(4, 7);
+        // var otherPerm = str.slice(7, 10);
+        // 返回的，存储各个数组要显示的内容
+        var obj = {};
+        if (symbols.indexOf(userPerm)) {
+            obj['checkListUser'] = showLabel[symbols.indexOf(userPerm)]
+        }
+        if (symbols.indexOf(groupPerm)) {
+            obj['checkListGroup'] = showLabel[symbols.indexOf(groupPerm)]
+        }
+        // 因为其他用户权限中包含粘着位,所以单独判断情况
+        obj['checkListOther'] = []
+        if (str[7] == 'r' ) {
+            obj['checkListOther'].push('可读');
+        }
+        if (str[8] == 'w' ) {
+            obj['checkListOther'].push('可写');
+        }
+        if (str[9] == 'x' ) {
+            obj['checkListOther'].push('可执行');
+        }
+        // 判断是否有粘着位
+        if (str[9] == 't' ) {
+            obj['checkListOther'].push('可执行');
+            obj['checkListOther'].push('粘着位SBIT');
+        }
+        if (str[9] == 'T') {
+            obj['checkListOther'].push('粘着位SBIT')
+        }
+        return obj;
+    },
+
+    getOctalPermission(arr) {
+        var obj = {'可读': 4, '可写': 2, '可执行': 1};
+        let temp = 0;
+        for (let i = 0; i < arr.length; i++) {
+            temp += obj[arr[i]]
+        }
+        return temp.toString(8);
+    },
     
 }
