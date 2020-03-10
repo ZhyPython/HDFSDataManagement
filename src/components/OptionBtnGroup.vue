@@ -150,7 +150,7 @@ export default {
                             })
                             .done(res => {
                                 // console.log(res);
-                                console.log("upload success");
+                                // console.log("upload success");
                                 numCompleted++;
                                 if (numCompleted == files.length) {
                                     // 关闭对话框

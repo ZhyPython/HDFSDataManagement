@@ -1,8 +1,7 @@
 <template>
 <div class="dir-table">
     <el-table 
-        :data="tableData"  
-        height="500" 
+        :data="showData"
         highlight-current-row>
         <!-- <el-table-column type="selection" width="55"></el-table-column> -->
         <el-table-column 
@@ -181,7 +180,7 @@ export default {
     name: 'HDFSTable',
 
     props: {
-        tableData: {
+        showData: {
             type: Array,
             default: []
         },
@@ -234,16 +233,16 @@ export default {
             //axios调用接口访问hdfs目录
             this.$axios.delete(url)
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 if (res.status == 200) {
-                    this.tableData.splice(this.fileIndex, 1);
+                    this.showData.splice(this.fileIndex, 1);
                     this.$notify.success({
                         title: "成功",
                         message: "删除文件成功！",
                         duration: 3000,
                     });
                     this.$emit(
-                        'enterDir', 
+                        'deleteFile', 
                         true, 
                         this.currentDir
                     );  
@@ -324,9 +323,9 @@ export default {
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
                     this.permissionDialogVisible = false;
-                    this.tableData[this.fileIndex].permission = this.$processFunc.helperToDirectory(this.rowObj.type)
+                    this.showData[this.fileIndex].permission = this.$processFunc.helperToDirectory(this.rowObj.type)
                                                                + this.$processFunc.helperToPermission(parseInt(tempPerm));
-                    console.log(this.tableData[this.fileIndex].permission)
+                    // console.log(this.showData[this.fileIndex].permission)
                     this.$notify.success({
                         title: "成功",
                         message: "成功更改文件权限",
@@ -360,12 +359,12 @@ export default {
             // 执行put请求
             this.$axios.put(url)
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
                     this.ownerDialogVisible = false;
                     this.btnText = '更 改';
-                    this.tableData[this.fileIndex].owner = this.owner;
+                    this.showData[this.fileIndex].owner = this.owner;
                     this.owner = '';
                     this.$notify.success({
                         title: "成功",
@@ -401,12 +400,12 @@ export default {
             // 执行put请求
             this.$axios.put(url)
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
                     this.groupDialogVisible = false;
                     this.btnText = '更 改';
-                    this.tableData[this.fileIndex].group = this.group;
+                    this.showData[this.fileIndex].group = this.group;
                     this.group = '';
                     this.$notify.success({
                         title: "成功",
@@ -442,12 +441,12 @@ export default {
             // 执行put请求
             this.$axios.put(url)
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
                     this.replicationDialogVisible = false;
                     this.btnText = '更 改';
-                    this.tableData[this.fileIndex].replication = this.replication;
+                    this.showData[this.fileIndex].replication = this.replication;
                     this.replication = null;
                     this.$notify.success({
                         title: "成功",
