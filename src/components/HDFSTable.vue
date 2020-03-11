@@ -6,7 +6,8 @@
         <!-- <el-table-column type="selection" width="55"></el-table-column> -->
         <el-table-column 
             label="名称" 
-            sortable="true">
+            sortable="true"
+            min-width="20%">
             <template slot-scope="scope">
                 <i :class="scope.row.type === 'FILE' ? 'el-icon-document' : 'el-icon-folder'"></i>
                 <el-link 
@@ -17,35 +18,43 @@
         </el-table-column>
         <el-table-column 
             prop="permission" 
-            label="权限">
+            label="权限"
+            min-width="10%">
         </el-table-column>
         <el-table-column 
             prop="owner" 
-            label="所有者">
+            label="所有者"
+            min-width="10%">
         </el-table-column>
         <el-table-column 
             prop="group" 
-            label="用户组">
+            label="用户组"
+            min-width="10%">
         </el-table-column>
         <el-table-column 
             prop="length" 
-            label="大小">
+            label="大小"
+            min-width="8%">
         </el-table-column>
         <el-table-column 
             prop="modificationTime" 
             label="最近修改时间"   
-            sortable="true">
+            sortable="true"
+            min-width="14%">
         </el-table-column>
         <el-table-column 
             prop="replication" 
-            label="副本数量">
+            label="副本数量"
+            min-width="8%">
         </el-table-column>
         <el-table-column 
             prop="blockSize" 
-            label="块大小">
+            label="块大小"
+            min-width="10%">
         </el-table-column>
         <el-table-column 
-            label="操作">
+            label="操作"
+            min-width="10%">
             <template slot-scope="scope">
                 <el-dropdown>
                     <el-button size="small">

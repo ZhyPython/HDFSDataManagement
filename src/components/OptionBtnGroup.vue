@@ -2,7 +2,8 @@
 <div class="opt-btn-group">
 
     <el-tooltip effect="dark" content="回退至上级目录" placement="top">
-        <el-button 
+        <el-button
+            id="back-btn" 
             size="medium" 
             plain
             icon="el-icon-back" 
@@ -12,6 +13,7 @@
 
     <el-tooltip effect="dark" content="上传文件到集群" placement="top">
         <el-button 
+            id="up-btn" 
             size="medium" 
             plain
             icon="el-icon-upload"
@@ -47,6 +49,7 @@
 
     <el-tooltip effect="dark" content="新建文件夹" placement="top">
         <el-button 
+            id="mkdir-btn"
             size="medium"
             plain
             icon="el-icon-folder-add"
@@ -246,3 +249,10 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+#back-btn, #up-btn, #mkdir-btn {
+    margin-right: 10px;
+    margin-left: 0px;
+}
+</style>

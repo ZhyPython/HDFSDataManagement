@@ -1,12 +1,7 @@
 <template>
 <div class="hdfs-dir">
-    <div class="option-bar">
-        <OptionBtnGroup 
-            :currentDir="currentDir" 
-            @refreshDir="refreshDir"
-            @backParentDir="backParentDir">
-        </OptionBtnGroup>
-    
+    <h1 align="center">HDFS文件浏览系统</h1>
+    <div class="dir-position">
         <el-input 
             v-model="currentDir" 
             size="medium"
@@ -18,7 +13,18 @@
                 @click="refreshDir(true, currentDir)">
             </el-button>
         </el-input>
-    
+    </div>
+
+    <div class="btn-group">
+        <OptionBtnGroup 
+            :currentDir="currentDir" 
+            @refreshDir="refreshDir"
+            @backParentDir="backParentDir">
+        </OptionBtnGroup>
+    </div>
+
+    <div class="search-input">    
+        <span>搜索文件：</span>
         <el-input 
             placeholder="输入文件名在当前目录下搜索文件" 
             size="medium"
@@ -26,7 +32,8 @@
             @clear="recoveryDir"
             @keyup.enter.native="searchFile"
             @input="searchFile"
-            v-model="searchString">
+            v-model="searchString"
+            style="width: 400px">
         </el-input>
     </div>
 
@@ -185,5 +192,22 @@ export default ({
 .hdfs-dir {
     margin-left: 100px;
     margin-right: 100px;
+    margin-top: -40px;
+}
+
+.search-input {
+    /* display:inline-block;  */
+    float: right;
+    margin-bottom: 10px;
+}
+
+.btn-group {
+    /* display:inline-block;  */
+    float: left;
+    margin-bottom: 10px;
+}
+
+.dir-position {
+    margin-bottom: 10px;
 }
 </style>
