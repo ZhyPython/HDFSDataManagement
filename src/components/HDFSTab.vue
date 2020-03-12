@@ -1,8 +1,11 @@
 <template>
 <div class="hdfs-tag">
-    <el-tabs type="border-card">
-        <el-tab-pane>
-            <span slot="label"><i class="el-icon-coin"></i> HDFS存储监控</span>
+    <el-tabs v-model="activeTab">
+        <el-tab-pane label="HDFS文件浏览" name="first">
+            <HDFSDirectory></HDFSDirectory>
+        </el-tab-pane>
+
+        <el-tab-pane label="HDFS存储监控" name="second">
             <div class="line-show" style="margin-left: 50px">
                 <el-progress 
                     :text-inside="true" 
@@ -13,8 +16,7 @@
             </div>
         </el-tab-pane>
 
-        <el-tab-pane label="消息中心">
-            <span slot="label"><i class="el-icon-monitor"></i> 节点存储监控</span>
+        <el-tab-pane label="节点存储监控" name="third">
             选择主机查看状态：
             <el-input placeholder="" size="small">
                 <el-button slot="append" icon="el-icon-search"></el-button>
@@ -33,15 +35,18 @@
 </template>
 
 <script>
-import axios from 'axios'
-export default {
-    name: 'HDFSTag',
+import HDFSDirectory from './HDFSDirectory.vue'
 
-    componets: {
+export default {
+    name: 'HDFSTab',
+
+    components: {
+        HDFSDirectory,
     },
 
     data() {
         return {
+            activeTab: 'first',
             percentage: 10,
             colors: [
                 {color: '#f56c6c', percentage: 20},
@@ -63,10 +68,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-.hdfs-tag {
-    margin-left: 100px;
-    margin-right: 100px;
-}
-</style>

@@ -1,6 +1,5 @@
 <template>
 <div class="hdfs-dir">
-    <h1 align="center">HDFS文件浏览系统</h1>
     <div class="dir-position">
         <el-input 
             v-model="currentDir" 
@@ -189,11 +188,11 @@ export default ({
 </script>
 
 <style scoped>
-.hdfs-dir {
-    margin-left: 100px;
-    margin-right: 100px;
+/* .hdfs-dir {
+    margin-left: 50px;
+    margin-right: 50px;
     margin-top: -40px;
-}
+} */
 
 .search-input {
     /* display:inline-block;  */

@@ -17,7 +17,7 @@ module.exports = {
         pathRewrite:{
           '^/browse':''
         }
-      }
+      },
     },
 
     // Various Dev Server settings

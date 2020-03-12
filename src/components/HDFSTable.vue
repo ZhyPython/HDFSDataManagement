@@ -478,3 +478,9 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+.dir-table {
+    margin-bottom: 15px;
+}
+</style>
