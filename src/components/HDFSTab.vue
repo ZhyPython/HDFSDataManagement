@@ -1,11 +1,14 @@
 <template>
 <div class="hdfs-tag">
+<el-card class="box-card">
     <el-tabs v-model="activeTab">
-        <el-tab-pane label="HDFS文件浏览" name="first">
+        <el-tab-pane name="first">
+            <span slot="label"><i class="el-icon-notebook-2"></i> HDFS文件浏览</span>
             <HDFSDirectory></HDFSDirectory>
         </el-tab-pane>
 
-        <el-tab-pane label="HDFS存储监控" name="second">
+        <el-tab-pane name="second">
+            <span slot="label"><i class="el-icon-pie-chart"></i> HDFS存储监控</span>
             <div class="line-show" style="margin-left: 50px">
                 <el-progress 
                     :text-inside="true" 
@@ -16,7 +19,8 @@
             </div>
         </el-tab-pane>
 
-        <el-tab-pane label="节点存储监控" name="third">
+        <el-tab-pane name="third">
+            <span slot="label"><i class="el-icon-monitor"></i> 节点存储监控</span>
             选择主机查看状态：
             <el-input placeholder="" size="small">
                 <el-button slot="append" icon="el-icon-search"></el-button>
@@ -31,6 +35,7 @@
             </div>
         </el-tab-pane>
     </el-tabs>
+</el-card>
 </div>
 </template>
 

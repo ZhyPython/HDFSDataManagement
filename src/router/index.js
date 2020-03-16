@@ -10,12 +10,15 @@ export default new Router({
     {
       path: '/HostNav',
       name: 'HostNav',
-      component: HostNav
+      component: HostNav,
+      meta: {
+        requireAuth: true
+      }
     },
     {
-      path: '/',
+      path: '/login',
       name: 'login',
-      component: LoginForm
+      component: LoginForm,
     }
   ],
   mode: "history"

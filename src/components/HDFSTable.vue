@@ -57,9 +57,7 @@
             min-width="10%">
             <template slot-scope="scope">
                 <el-dropdown>
-                    <el-button size="small">
-                    <i class="el-icon-set-up" style="font-size: 15px;" type="primary"></i>
-                    </el-button>
+                    <i class="el-icon-set-up" style="font-size: 25px;" type="primary"></i>
                     <el-dropdown-menu 
                         slot="dropdown">
                         <el-dropdown-item @click.native="handleDelete(scope.$index, scope.row)">删除文件</el-dropdown-item>
