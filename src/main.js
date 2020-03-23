@@ -9,12 +9,16 @@ import Axios from 'axios'
 import qs from 'qs';
 import ProcessFunc from './process_func/hdfs_table'
 import cookie from './assets/js/cookie'
+import echarts from 'echarts'
+import HighchartsVue from 'highcharts-vue'
 
 Vue.use(ElementUI)
+Vue.use(HighchartsVue)
 
 Vue.prototype.$axios = Axios
 Vue.prototype.$qs = qs
 Vue.prototype.$cookie = cookie
+Vue.prototype.$echarts = echarts
 Axios.defaults.withCredentials = true
 Axios.defaults.baseURL = '/browse'
 Axios.defaults.headers.post['content-Type'] = 'application/json'

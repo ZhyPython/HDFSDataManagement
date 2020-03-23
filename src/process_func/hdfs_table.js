@@ -148,5 +148,43 @@ export default {
         }
         return temp.toString(8);
     },
-    
+
+    utc2localTime(utcDatetime) {
+        // 存储转换后的时间
+        let localTime = new Array();
+        for (let i = 0; i < utcDatetime.length; i++) {
+            // 转为正常的时间格式 年-月-日 时:分:秒
+            var TPos = utcDatetime[i].indexOf('T');
+            var ZPos = utcDatetime[i].indexOf('Z');
+            var yearMonthDay = utcDatetime[i].substr(0, TPos);
+            var hourMinuteSecond = utcDatetime[i].substr(TPos+1, ZPos-TPos-1);
+            var newDatetime = yearMonthDay + " " + hourMinuteSecond; // 2017-03-31 08:02:06
+
+            // 处理成为时间戳
+            timestamp = new Date(Date.parse(newDatetime));
+            timestamp = timestamp.getTime();
+            timestamp = timestamp / 1000;
+
+            // 增加8个小时，北京时间比utc时间多八个时区
+            var timestamp = timestamp + 8 * 60 * 60;
+
+            // 时间戳转为时间
+            var localDatetime = new Date(parseInt(timestamp) * 1000).toLocaleString().replace(/年|月/g, "-").replace(/日/g, " ");
+            localTime.push(localDatetime);
+        }
+        return localTime;
+    },
+
+    utc2milliSecond(utcDatetime) {
+        // 将时间戳转化为毫秒数
+        let millisecond = new Array();
+        for (let i = 0; i < utcDatetime.length; i++) {
+            // 将时间戳转化为毫秒数
+            let temp = Date.parse(utcDatetime[i]);
+            // 加上8小时的毫秒数为北京时间
+            temp += 8 * 60 * 60 * 1000;
+            millisecond.push(temp);
+        }
+        return millisecond;
+    }
 }
