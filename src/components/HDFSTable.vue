@@ -1,4 +1,5 @@
 <template>
+<!-- 目录表格 -->
 <div class="dir-table">
     <el-table 
         :data="showData"
@@ -57,7 +58,7 @@
             min-width="10%">
             <template slot-scope="scope">
                 <el-dropdown>
-                    <i class="el-icon-set-up" style="font-size: 25px;" type="primary"></i>
+                    <i class="el-icon-set-up" style="font-size: 25px; color: #409EFF;"></i>
                     <el-dropdown-menu 
                         slot="dropdown">
                         <el-dropdown-item @click.native="handleDelete(scope.$index, scope.row)">删除文件</el-dropdown-item>

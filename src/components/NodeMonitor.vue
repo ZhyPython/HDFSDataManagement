@@ -1,4 +1,5 @@
 <template>
+<!-- 节点监控 -->
 <div class="node-monitor">
 
 </div>

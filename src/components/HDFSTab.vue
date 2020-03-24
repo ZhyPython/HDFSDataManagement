@@ -1,4 +1,5 @@
 <template>
+<!-- 用户界面的tab选项 -->
 <div class="hdfs-tag">
 <el-card class="box-card">
     <el-tabs v-model="activeTab">

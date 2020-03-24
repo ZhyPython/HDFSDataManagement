@@ -1,4 +1,5 @@
 <template>
+<!-- HDFS文件浏览界面 -->
 <div class="hdfs-dir">
     <div class="dir-position">
         <el-input 

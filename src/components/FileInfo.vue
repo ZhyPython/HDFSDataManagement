@@ -1,4 +1,5 @@
 <template>
+<!-- 查看文件信息 -->
 <div class="file-information">
     <el-dialog
         :title="fileInfoTitle"

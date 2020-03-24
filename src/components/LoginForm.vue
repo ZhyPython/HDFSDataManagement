@@ -1,4 +1,5 @@
 <template>
+<!-- 登录注册表单 -->
 <div class="login">
     <el-card v-show="signUpFlag" shadow="hover" style="text-align: center; width: 400px">
         <h2>用户注册</h2>

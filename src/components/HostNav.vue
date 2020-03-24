@@ -1,4 +1,5 @@
 <template>
+<!-- 导航栏，头部栏，侧边栏和主内容区域 -->
 <div class="host-nav">
 <el-container style="height: 100%;min-height:100vh">
     <el-header class="sys-header" height=60px>
@@ -10,17 +11,15 @@
         <el-aside width="180px" class="sys-aside">
             <el-menu
                 class="host-menu"
-                default-active="1"
+                default-active="0"
                 background-color="#545c64"
                 text-color="#fff">
-                <el-menu-item index="1">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">主机一</span>
-                </el-menu-item> 
-                <el-menu-item index="2">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">主机二</span>
-                </el-menu-item>
+                <template v-for="(cluster, index) in clusters['displayName']">
+                    <el-menu-item :index="index.toString()">
+                        <i class="el-icon-menu"></i>
+                        <span slot="title">{{ cluster }}</span>
+                    </el-menu-item>
+                </template>
             </el-menu>
         </el-aside>
         <el-main class="sys-main">
@@ -36,6 +35,12 @@ import HDFSTab from './HDFSTab'
 
 export default {
     name: 'HostNav',
+
+    data() {
+        return {
+            clusters: {},
+        }
+    },
     
     components: {
         HDFSTab,
@@ -49,6 +54,10 @@ export default {
         }
     },
 
+    mounted () {
+        this.getClusters();
+    },
+
     methods: {
         quitSys() {
             localStorage.removeItem('username')
@@ -56,12 +65,23 @@ export default {
             // 调取后台接口，删除session
             this.$axios.get("http://127.0.0.1:8000/delete/")
             .then(res => {
-                // console.log(res)
+                console.log(res)
             })
             .catch(err => {
                 console.log(err)
             })
-        }
+        },
+
+        getClusters() {
+            this.$axios.get("http://127.0.0.1:8000/get_clusters/")
+            .then(res => {
+                // console.log(res.data);
+                this.clusters = JSON.parse(res.data);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        },
     },
 }
 </script>
