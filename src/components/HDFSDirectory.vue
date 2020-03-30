@@ -40,6 +40,7 @@
     <div class="show-table">
         <HDFSTable :showData="showData" 
                    :currentDir="currentDir"
+                   @sortData="sortData"
                    @enterDir="refreshDir"
                    @deleteFile="refreshDir"
                    @changeCurrentDir="changeCurrentDir">
@@ -74,7 +75,7 @@ export default ({
             searchFlag: false,
             currentDir: '/',   
             searchString: '',
-            total: 10,
+            total: 0,
             currentPage: 1,
             pageSize: 10,    // 每页条数
         }
@@ -86,9 +87,9 @@ export default ({
                 // 要显示的开始位置和终止位置
                 let begin = (this.currentPage - 1) * this.pageSize;
                 let end = this.currentPage * this.pageSize;
-                return this.tableData.slice(begin, end); 
+                return this.tableData.slice(begin, end);
             }
-        }
+        },
     },
 
     components: {
@@ -182,6 +183,19 @@ export default ({
         handleCurrentChange: function(currentPage) {
             // 回调参数为当前页
             this.currentPage = currentPage
+        },
+
+        sortData: function(order) {
+            if (order == "ascending") {
+                console.log(order)
+            }
+            if (order == "descending") {
+                console.log(order)
+            }
+            if (order == "null") {
+                console.log(order)
+                return;
+            }
         },
 
     },

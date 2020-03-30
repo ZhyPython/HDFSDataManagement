@@ -113,7 +113,7 @@ export default {
         },
 
         getMetrics(metric) {
-            this.$axios.get("http://127.0.0.1:8000/get_metrics/", {
+            this.$axios.get(this.$backend + "/get_metrics/", {
                 params: {
                     metric: metric
                 }

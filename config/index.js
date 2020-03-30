@@ -11,11 +11,19 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/browse':{
+      '/nn1':{
         target: "http://192.168.112.101:9870",
         changeOrigin:true,
         pathRewrite:{
-          '^/browse':''
+          '^/nn1':''
+        }
+      },
+
+      '/nn2':{
+        target: "http://192.168.112.102:9870",
+        changeOrigin:true,
+        pathRewrite:{
+          '^/nn2':''
         }
       },
     },
@@ -51,7 +59,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: './',
 
     /**
      * Source Maps

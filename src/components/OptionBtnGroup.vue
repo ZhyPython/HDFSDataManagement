@@ -129,7 +129,9 @@ export default {
                 url = this.$processFunc.encode_path(
                     this.$processFunc.append_path(url, fileName)
                 );
-                url += '?op=CREATE&user.name=hdfs&noredirect=true&overwrite=true';
+                url += '?op=CREATE&user.name='
+                       + localStorage.getItem('username')
+                       + '&noredirect=true&overwrite=true';
                 // 将文件对象以对象的方式压入文件列表数组
                 files.push( { [url]: file} );
             }
@@ -191,6 +193,7 @@ export default {
                     });
                 }) 
             }
+            this.btnText = '上传到集群';
         },
 
         handleRemove(file, fileList) {
@@ -205,7 +208,8 @@ export default {
             let dir = this.$processFunc.append_path(this.currentDir, this.inputDir);
             let url = "/webhdfs/v1"
                       + dir 
-                      + "?op=MKDIRS&user.name=hdfs&permission=775"
+                      + "?op=MKDIRS&permission=775&user.name="
+                      + localStorage.getItem('username')
             this.$axios.put(url)
             .then(res => {
                 if (res.status == 200) {

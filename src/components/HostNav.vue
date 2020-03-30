@@ -61,9 +61,9 @@ export default {
     methods: {
         quitSys() {
             localStorage.removeItem('username')
-            this.$router.push({path: '/login'})
+            this.$router.push({path: '/'})
             // 调取后台接口，删除session
-            this.$axios.get("http://127.0.0.1:8000/delete/")
+            this.$axios.get(this.$backend + "/delete/")
             .then(res => {
                 console.log(res)
             })
@@ -73,7 +73,7 @@ export default {
         },
 
         getClusters() {
-            this.$axios.get("http://127.0.0.1:8000/get_clusters/")
+            this.$axios.get(this.$backend + "/get_clusters/")
             .then(res => {
                 // console.log(res.data);
                 this.clusters = JSON.parse(res.data);

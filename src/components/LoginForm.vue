@@ -142,7 +142,7 @@ export default {
                     let data = this.$qs.stringify(this.loginFormData)
                     this.$axios({
                         method: 'post',
-                        url: 'http://127.0.0.1:8000/login/', 
+                        url: this.$backend + '/login/', 
                         headers: {
                             'Content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
                         },
@@ -193,7 +193,7 @@ export default {
                     data = this.$qs.stringify(data)
                     this.$axios({
                         method: 'post',
-                        url: 'http://127.0.0.1:8000/signup/', 
+                        url: this.$backend + '/signup/', 
                         headers: {
                             'Content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
                         },

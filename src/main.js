@@ -19,8 +19,10 @@ Vue.prototype.$axios = Axios
 Vue.prototype.$qs = qs
 Vue.prototype.$cookie = cookie
 Vue.prototype.$echarts = echarts
+Vue.prototype.$backend = "http://127.0.0.1:8000"
+
 Axios.defaults.withCredentials = true
-Axios.defaults.baseURL = '/browse'
+// Axios.defaults.baseURL = '/nn1'
 Axios.defaults.headers.post['content-Type'] = 'application/json'
 
 Vue.prototype.$processFunc = ProcessFunc
@@ -30,14 +32,14 @@ Vue.config.productionTip = false
 router.beforeEach((to, from, next) => {
   if (to.matched.some(item => item.meta.requireAuth)) {
     // 向后台发出请求，验证用户是否登录过
-    Axios.get("http://127.0.0.1:8000/valid/")
+    Axios.get(Vue.prototype.$backend + "/valid/")
     .then(res => {
       // console.log(res)
       if (res.data.info == 'logined') {
         localStorage.setItem('username', res.data.username)
         next()
       } else {
-        next('/login')
+        next('/')
       }
     })
     .catch(err => {
@@ -48,10 +50,22 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+async function getActiveNN () {
+  try {
+    let res =  await Axios.get(Vue.prototype.$backend
+                                    + "/get_active_namenode/")
+    Axios.defaults.baseURL =  '/' + res.data['active']
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 /* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
+getActiveNN().then(() => {
+  new Vue({
+    el: '#app',
+    router,
+    components: { App },
+    template: '<App/>',
+  })
 })

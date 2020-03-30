@@ -16,10 +16,10 @@ export default new Router({
       }
     },
     {
-      path: '/login',
+      path: '/',
       name: 'login',
       component: LoginForm,
     }
   ],
-  mode: "history"
+  // mode: "hash"
 })

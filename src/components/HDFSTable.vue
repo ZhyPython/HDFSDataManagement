@@ -3,16 +3,16 @@
 <div class="dir-table">
     <el-table 
         :data="showData"
+        @sort-change="changeSort"
         highlight-current-row>
         <!-- <el-table-column type="selection" width="55"></el-table-column> -->
-        <el-table-column 
-            label="名称" 
-            sortable="true"
+        <el-table-column
+            label="名称"
             min-width="20%">
             <template slot-scope="scope">
                 <i :class="scope.row.type === 'FILE' ? 'el-icon-document' : 'el-icon-folder'"></i>
                 <el-link 
-                    type="primary" 
+                    type="primary"
                     @click="showDetailDialog(scope.row)">{{ scope.row.pathSuffix }}
                 </el-link>
             </template>
@@ -40,7 +40,7 @@
         <el-table-column 
             prop="modificationTime" 
             label="最近修改时间"   
-            sortable="true"
+            sortable="custom"
             min-width="14%">
         </el-table-column>
         <el-table-column 
@@ -237,7 +237,7 @@ export default {
             let url = '/webhdfs/v1' + this.currentDir;
             // 防止当前目录最后一位是'/'，所以用append_path拼接字符串
             url = this.$processFunc.append_path(url, fileName);
-            url = url + '?op=DELETE&recursive=true&user.name=hdfs';
+            url = url + '?op=DELETE&recursive=true&user.name=' + localStorage.getItem('username');
             //axios调用接口访问hdfs目录
             this.$axios.delete(url)
             .then(res => {
@@ -298,6 +298,18 @@ export default {
             this.fileInfoDialogVisible = false;
         },
 
+        // 排序
+        changeSort({ column, prop, order }) {
+            // column:列属性
+            // prop:列的绑定变量
+            // order:排序方法(ascending，descending，null三者之一)
+            // console.log(column, prop, order)
+            this.$emit(
+                'sortData',
+                order,
+            )
+        },
+
         handlePermission(index, row) {
             this.permissionDialogVisible = true;
             this.fileIndex = index;
@@ -325,7 +337,11 @@ export default {
             // 拼接请求字符串
             let url = '/webhdfs/v1' 
                       + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
-            url = url + '?op=SETPERMISSION&permission=' + tempPerm + '&user.name=hdfs';
+            url = url 
+                  + '?op=SETPERMISSION&permission=' 
+                  + tempPerm 
+                  + '&user.name='
+                  + localStorage.getItem('username');
             this.$axios.put(url)
             .then(res => {
                 if (res.status == 200) {
@@ -342,10 +358,17 @@ export default {
                 }
             })
             .catch(err => {
-                console.log(err);
+                // console.log(err);
+                // 状态码
+                let status = err.response.status
+                // 报错信息
+                let msg = JSON.parse(err.response.request.response).RemoteException.message
+                // console.log(status, msg)
                 this.$notify.error({
                     title: "失败",
-                    message: "更改文件权限失败",
+                    message: "权限不足，" 
+                             + localStorage.getItem('username')
+                             + "用户不是当前文件的所有者",
                     duration: 3000,
                 });
             })
@@ -363,7 +386,11 @@ export default {
             }
             let url = '/webhdfs/v1' 
                       + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
-            url = url + '?op=SETOWNER&owner=' + this.owner + '&user.name=hdfs';
+            url = url 
+                  + '?op=SETOWNER&owner=' 
+                  + this.owner 
+                  + '&user.name='
+                  + localStorage.getItem('username');
             // 执行put请求
             this.$axios.put(url)
             .then(res => {
@@ -383,10 +410,14 @@ export default {
             })
             .catch(err => {
                 this.btnText = '更 改';
-                console.log(err);
+                // console.log(err);
+                // 状态码
+                let status = err.response.status
+                // 报错信息
+                let msg = JSON.parse(err.response.request.response).RemoteException.message
                 this.$notify.error({
                     title: "失败",
-                    message: "更改所有者失败",
+                    message: "当前用户没有权限更改所有者",
                     duration: 3000,
                 });
             })
@@ -404,7 +435,11 @@ export default {
             }
             let url = '/webhdfs/v1' 
                       + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
-            url = url + '?op=SETOWNER&group=' + this.group + '&user.name=hdfs'
+            url = url 
+                  + '?op=SETOWNER&group=' 
+                  + this.group 
+                  + '&user.name='
+                  + localStorage.getItem('username')
             // 执行put请求
             this.$axios.put(url)
             .then(res => {
@@ -417,17 +452,21 @@ export default {
                     this.group = '';
                     this.$notify.success({
                         title: "成功",
-                        message: "成功更改所有组",
+                        message: "成功更改用户组",
                         duration: 3000,
                     });
                 }
             })
             .catch(err => {
                 this.btnText = '更 改';
-                console.log(err);
+                // console.log(err);
+                // 状态码
+                let status = err.response.status
+                // 报错信息
+                let msg = JSON.parse(err.response.request.response).RemoteException.message
                 this.$notify.error({
                     title: "失败",
-                    message: "更改所有组失败",
+                    message: "当前用户没有权限更改用户组",
                     duration: 3000,
                 });
             })
@@ -445,7 +484,11 @@ export default {
             }
             let url = '/webhdfs/v1' 
                       + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
-            url = url + '?op=SETREPLICATION&replication=' + this.replication + '&user.name=hdfs'
+            url = url 
+                  + '?op=SETREPLICATION&replication=' 
+                  + this.replication 
+                  + '&user.name='
+                  + localStorage.getItem('username')
             // 执行put请求
             this.$axios.put(url)
             .then(res => {
