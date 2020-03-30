@@ -104,7 +104,8 @@ export default {
         downloadFile() {
             // console.log(this.downloadUrl)
             this.$axios.get(this.downloadUrl, {
-                responseType: 'blob'   // 表明服务器返回的数据类型
+                responseType: 'blob',   // 表明服务器返回的数据类型
+                withCredentials: false,
             })
             .then(res => {
                 // console.log(res)
