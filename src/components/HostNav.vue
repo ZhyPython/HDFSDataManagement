@@ -65,7 +65,7 @@ export default {
             // 调取后台接口，删除session
             this.$axios.get(this.$backend + "/delete/")
             .then(res => {
-                console.log(res)
+                // console.log(res)
             })
             .catch(err => {
                 console.log(err)

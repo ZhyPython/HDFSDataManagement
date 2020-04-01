@@ -32,13 +32,56 @@
                 <li>{{ host }}</li>
             </ul>
         </p>
+        
+        <!-- 内层的dialog，选择文件下载到的具体主机 -->
+        <el-dialog
+            width="30%"
+            title="选择主机"
+            :visible.sync="innerVisible"
+            :lock-scroll=false
+            @open="getDNs"
+            @close="clearHosts"
+            append-to-body>
+            
+            <span>选择主机:</span>
+            <el-select 
+                v-model="hostIP"  
+                style="width:40%">
+                <el-option
+                    v-for="item in hosts"
+                    :key="item.hostIP"
+                    :value="item.hostIP"
+                    :label="item.hostName">
+                </el-option>
+            </el-select>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button 
+                    size="medium" 
+                    @click="innerVisible = false">取 消
+                </el-button>
+                <el-button 
+                    type="primary" 
+                    size="medium" 
+                    @click="downloadToHost">下 载
+                </el-button>
+            </span>
+        </el-dialog>
 
         <span slot="footer" class="dialog-footer">
             <el-button
                 type="primary"
                 size="medium"
                 @click="downloadFile"
-                >下载
+                style="float: left"
+                >下载到本地
+            </el-button>
+            <el-button
+                type="primary"
+                size="medium"
+                @click="innerVisible = true"
+                style="float: left"
+                >下载到节点
             </el-button>
             <el-button 
                 type="primary" 
@@ -59,6 +102,9 @@ export default {
             value: 0,
             block: {},
             blocks: [],
+            innerVisible: false,
+            hostIP: '',
+            hosts: [],
         }
     },
 
@@ -204,6 +250,63 @@ export default {
 
         changeBlockInfo(value) {
             this.block = this.blocks[value];
+        },
+
+        getDNs() {
+            this.$axios.get(this.$backend + "/get_datanodes/")
+            .then(res => {
+                // console.log(res.data.info)
+                // 获取res.data.info中的键列表
+                let hostName = Object.keys(res.data.info)
+                for (let i = 0; i < hostName.length; i++) {
+                    // 定义一个对象存储信息值
+                    let temp = {}
+                    temp['hostName'] = hostName[i]
+                    temp['hostIP'] = res.data.info[hostName[i]]
+                    // 将信息存入hosts中
+                    this.hosts.push(temp)
+                }
+                // console.log(this.hosts)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        },
+
+        downloadToHost() {
+            this.$axios.get(this.$backend + "/dowanload_file_to_host/", {
+                params: {
+                    hostIP: this.hostIP,
+                    filePath: this.$processFunc.append_path(this.currentDir, this.fileName),
+                    hostPath: '~'
+                }
+            })
+            .then(res => {
+                // console.log(res)
+                if (res.status == 200) {
+                    // 关闭对话框
+                    this.innerVisible = false
+                    this.$notify.success({
+                        title: "成功",
+                        message: "成功下载文件到远程主机",
+                        duration: 3000,
+                    });
+                }
+            })
+            .catch(err => {
+                console.log(err)
+                this.$notify.error({
+                    title: "失败",
+                    message: "无法下载文件到远程主机",
+                    duration: 3000,
+                });
+            })
+        },
+
+        clearHosts() {
+            // 设置关闭对话框后，清除下拉框保存的信息
+            this.hostIP = ''
+            this.hosts = []
         }
 
     }
