@@ -43,17 +43,26 @@
             @close="clearHosts"
             append-to-body>
             
-            <span>选择主机:</span>
-            <el-select 
-                v-model="hostIP"  
-                style="width:40%">
-                <el-option
-                    v-for="item in hosts"
-                    :key="item.hostIP"
-                    :value="item.hostIP"
-                    :label="item.hostName">
-                </el-option>
-            </el-select>
+            <div>
+                <span>选择主机:</span>
+                <el-select 
+                    v-model="hostIP"  
+                    style="width:40%">
+                    <el-option
+                        v-for="item in hosts"
+                        :key="item.hostIP"
+                        :value="item.hostIP"
+                        :label="item.hostName">
+                    </el-option>
+                </el-select>
+            </div>
+            <div>
+                <span>存储路径:</span>
+                <el-input
+                    v-model="downloadPath" 
+                    style="width: 300px; margin-top: 20px">
+                </el-input>
+            </div>
 
             <span slot="footer" class="dialog-footer">
                 <el-button 
@@ -63,7 +72,7 @@
                 <el-button 
                     type="primary" 
                     size="medium" 
-                    @click="downloadToHost">下 载
+                    @click="handledownloadToHost">{{ btnFileToHost }}
                 </el-button>
             </span>
         </el-dialog>
@@ -105,6 +114,9 @@ export default {
             innerVisible: false,
             hostIP: '',
             hosts: [],
+            downloadPath: '/hdfs_download',
+            //下载文件到主机的按钮显示文字
+            btnFileToHost: "下 载",
         }
     },
 
@@ -252,6 +264,7 @@ export default {
             this.block = this.blocks[value];
         },
 
+        // 获取datanodes节点
         getDNs() {
             this.$axios.get(this.$backend + "/get_datanodes/")
             .then(res => {
@@ -273,12 +286,26 @@ export default {
             })
         },
 
+        // 检查下载时的参数是否完整
+        handledownloadToHost() {
+            if (this.hostIP != "" && this.downloadPath != "") {
+                this.btnFileToHost = "下载中..."
+                this.downloadToHost()
+            } else {
+                this.$notify.warning({
+                    title: "警告",
+                    message: "需要选中主机或存储路径",
+                    duration: 3000,
+                });
+            }
+        },
+
         downloadToHost() {
             this.$axios.get(this.$backend + "/dowanload_file_to_host/", {
                 params: {
                     hostIP: this.hostIP,
                     filePath: this.$processFunc.append_path(this.currentDir, this.fileName),
-                    hostPath: '~'
+                    hostPath: this.$processFunc.append_path("/", this.downloadPath)
                 }
             })
             .then(res => {
@@ -291,6 +318,9 @@ export default {
                         message: "成功下载文件到远程主机",
                         duration: 3000,
                     });
+                    // 将按钮的显示恢复为"下载", 路径恢复为初始值
+                    this.downloadPath = '/hdfs_download'
+                    this.btnFileToHost = "下 载"
                 }
             })
             .catch(err => {

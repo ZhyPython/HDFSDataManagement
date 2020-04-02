@@ -24,6 +24,8 @@ export default {
     append_path: function(prefix, s) {
         let l = prefix.length;
         let p = l > 0 && prefix[l - 1] == '/' ? prefix.substring(0, l - 1) : prefix;
+        // 判断s的第一位是否为 "/"
+        s = s[0] == "/" ? s.substring(1, s.length) : s
         return p + '/' + s;
       },
 

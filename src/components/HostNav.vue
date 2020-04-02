@@ -14,10 +14,10 @@
                 default-active="0"
                 background-color="#545c64"
                 text-color="#fff">
-                <template v-for="(cluster, index) in clusters['displayName']">
+                <template v-for="(cluster, index) in clusters">
                     <el-menu-item :index="index.toString()">
                         <i class="el-icon-menu"></i>
-                        <span slot="title">{{ cluster }}</span>
+                        <span slot="title">{{ cluster.displayName }}</span>
                     </el-menu-item>
                 </template>
             </el-menu>
@@ -38,7 +38,7 @@ export default {
 
     data() {
         return {
-            clusters: {},
+            clusters: [],
         }
     },
     

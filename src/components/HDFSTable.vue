@@ -39,8 +39,7 @@
         </el-table-column>
         <el-table-column 
             prop="modificationTime" 
-            label="最近修改时间"   
-            sortable="custom"
+            label="最近修改时间"
             min-width="14%">
         </el-table-column>
         <el-table-column 
