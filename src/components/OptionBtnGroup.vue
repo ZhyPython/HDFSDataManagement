@@ -110,8 +110,7 @@ export default {
                     message: "未选择任何文件！",
                     duration: 3000,
                 }); 
-            }
-            else {
+            } else {
                 this.btnText = '上传中...';
             }
 
@@ -125,83 +124,72 @@ export default {
                 // 获取fileList中的File对象及文件名称，拼接字符串
                 let file = this.fileList[i].raw;
                 let fileName = file.name;
-                let url = '/webhdfs/v1' + this.currentDir  
+                let url = '/webhdfs/v1' + this.currentDir
                 url = this.$processFunc.encode_path(
                     this.$processFunc.append_path(url, fileName)
                 );
                 url += '?op=CREATE&user.name='
                        + localStorage.getItem('username')
-                       + '&noredirect=true&overwrite=true';
-                // 将文件对象以对象的方式压入文件列表数组
+                       + '&overwrite=true';
+                // 将文件对象以对象的方式压入文件列表数组, 以变量作为键名需要加[]
                 files.push( { [url]: file} );
             }
-            // location为首次请求后返回的地址，用做第二次请求
-            let location = '';
             for (let i = 0; i < files.length; i++){
                 // 获取文件对应的url
                 let url = Object.keys(files[i])[0];
-                // 提交第一次请求获取返回的URI
-                this.$axios.put(url)
+                // 上传文件时用form-data提交
+                let configs = {
+                    headers: {'Content-Type':'multipart/form-data'}
+                }
+                let forms = new FormData()
+                forms.append('url', url)
+                forms.append('file', files[i][url])
+                this.$axios.put(this.$backend + '/upload_file/', forms, configs)
                 .then(res => {
-                    if ('Location' in res.data) {
-                        location = res.data["Location"];
-                        // data参数为url对应的文件对象
-                        jQuery.ajax({
-                                type: 'PUT',
-                                url: location,
-                                data: files[i][url],
-                                processData: false,
-                                crossDomain: true,
-                                async: false,
-                            })
-                            .done(res => {
-                                // console.log(res);
-                                // console.log("upload success");
-                                numCompleted++;
-                                if (numCompleted == files.length) {
-                                    // 关闭对话框
-                                    this.uploadDialogVisible = false;
-                                    this.$notify.success({
-                                        title: "成功",
-                                        message: "上传文件成功！",
-                                        duration: 3000,
-                                    });
-                                    // 清除上传列表
-                                    this.$refs.upload.clearFiles();
-                                    this.fileList = [];
-                                    // 更新表格数据
-                                    this.$emit('refreshDir', true, this.currentDir);
-                                    this.btnText = '上传到集群'
-                                }
-                            })
-                            .catch(err => {
-                                console.log("upload failed");
-                                this.$notify.error({
-                                    title: "失败",
-                                    message: files[i][url]["name"] + "上传失败",
-                                    duration: 3000,
-                                });
-                            })
-                    }  
+                    // console.log(res)
+                    if (res.data.info == 'success'){
+                        numCompleted++;
+                        if (numCompleted == files.length) {
+                            // 关闭对话框
+                            this.uploadDialogVisible = false;
+                            this.$notify.success({
+                                title: "成功",
+                                message: "上传文件成功！",
+                                duration: 3000,
+                            });
+                            // 清除上传列表
+                            this.$refs.upload.clearFiles();
+                            this.fileList = [];
+                            // 更新表格数据
+                            this.$emit('refreshDir', true, this.currentDir);
+                            this.btnText = '上传到集群'
+                        }
+                    } else {
+                        this.$notify.error({
+                            title: "失败",
+                            message: files[i][url]["name"] + "上传失败",
+                            duration: 3000,
+                        });
+                    }
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.log(err)
                     this.$notify.error({
                         title: "失败",
-                        message: "axios上传文件失败",
+                        message: files[i][url]["name"] + "上传失败",
                         duration: 3000,
                     });
-                }) 
+                })
             }
             this.btnText = '上传到集群';
         },
 
         handleRemove(file, fileList) {
             this.$notify.success({
-                        title: "成功",
-                        message: "移除文件成功！",
-                        duration: 3000,
-                    });
+                title: "成功",
+                message: "移除文件成功！",
+                duration: 3000,
+            });
         },
 
         btnMkdir() {

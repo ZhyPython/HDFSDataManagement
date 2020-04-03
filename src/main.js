@@ -52,6 +52,7 @@ router.beforeEach((to, from, next) => {
 
 async function getActiveNN () {
   try {
+    // 页面初始化时访问后端接口，获取第一个集群
     let res =  await Axios.get(Vue.prototype.$backend
                                     + "/get_active_namenode/")
     Axios.defaults.baseURL =  '/' + res.data['active']

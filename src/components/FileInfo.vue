@@ -161,14 +161,17 @@ export default {
 
         downloadFile() {
             // console.log(this.downloadUrl)
-            this.$axios.get(this.downloadUrl, {
+            this.$axios.get(this.$backend + '/download_file/', {
+                params: {
+                    url: this.downloadUrl
+                },
                 responseType: 'blob',   // 表明服务器返回的数据类型
                 withCredentials: false,
             })
             .then(res => {
                 // console.log(res)
                 if (res.status == 200) {
-                    console.log(res.data)
+                    // console.log(res.data)
                     let blob = new Blob([res.data], {
                         type: "application/octet-stream"
                     });
