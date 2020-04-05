@@ -141,7 +141,9 @@ export default {
                 let configs = {
                     headers: {'Content-Type':'multipart/form-data'}
                 }
+                // put请求的参数
                 let forms = new FormData()
+                forms.append('activeNN', this.$clusterInfo.activeNN.hostIP)
                 forms.append('url', url)
                 forms.append('file', files[i][url])
                 this.$axios.put(this.$backend + '/upload_file/', forms, configs)
@@ -198,7 +200,11 @@ export default {
                       + dir 
                       + "?op=MKDIRS&permission=775&user.name="
                       + localStorage.getItem('username')
-            this.$axios.put(url)
+            // put请求的参数
+            let forms = new FormData()
+            forms.append('activeNN', this.$clusterInfo.activeNN.hostIP)
+            forms.append('url', url)
+            this.$axios.put(this.$backend + '/mkdir/', forms)
             .then(res => {
                 if (res.status == 200) {
                     this.mkdirDialogVisible = false

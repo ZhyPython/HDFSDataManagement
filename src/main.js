@@ -20,9 +20,9 @@ Vue.prototype.$qs = qs
 Vue.prototype.$cookie = cookie
 Vue.prototype.$echarts = echarts
 Vue.prototype.$backend = "http://127.0.0.1:8000"
+Vue.prototype.$clusterInfo = {}
 
 Axios.defaults.withCredentials = true
-// Axios.defaults.baseURL = '/nn1'
 Axios.defaults.headers.post['content-Type'] = 'application/json'
 
 Vue.prototype.$processFunc = ProcessFunc
@@ -30,43 +30,66 @@ Vue.prototype.$processFunc = ProcessFunc
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(item => item.meta.requireAuth)) {
-    // 向后台发出请求，验证用户是否登录过
-    Axios.get(Vue.prototype.$backend + "/valid/")
-    .then(res => {
-      // console.log(res)
-      if (res.data.info == 'logined') {
-        localStorage.setItem('username', res.data.username)
-        next()
-      } else {
-        next('/')
-      }
-    })
-    .catch(err => {
-      console.log(err)
-    })
-  } else {
-    next() // 确保一定要调用 next()
-  }
+    if (to.matched.some(item => item.meta.requireAuth)) {
+        // 向后台发出请求，验证用户是否登录过
+        Axios.get(Vue.prototype.$backend + "/valid/")
+        .then(res => {
+          // console.log(res)
+          if (res.data.info == 'logined') {
+                localStorage.setItem('username', res.data.username)
+                next()
+          } else {
+                next('/')
+          }
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    } else {
+        next() // 确保一定要调用 next()
+    }
 })
 
 async function getActiveNN () {
-  try {
-    // 页面初始化时访问后端接口，获取第一个集群
-    let res =  await Axios.get(Vue.prototype.$backend
-                                    + "/get_active_namenode/")
-    Axios.defaults.baseURL =  '/' + res.data['active']
-  } catch (err) {
-    console.log(err)
-  }
+    try {
+        // 页面初始化时访问后端接口，获取第一个集群
+        let firstClusterName = null
+        jQuery.ajax({
+            type: 'GET',
+            url: Vue.prototype.$backend + "/get_clusters/",
+            dataType: 'json',
+            async: false,
+            success: function(res) {
+                firstClusterName = res[0].name
+                Vue.prototype.$clusterInfo.cluster = firstClusterName
+            },
+            error: function(){
+                alert(arguments[1]);
+            }
+        })
+        let url = Vue.prototype.$backend
+              + "/get_active_namenode/?clusterName="
+              + firstClusterName
+        jQuery.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            async: false,
+            success: function(res) {
+                Vue.prototype.$clusterInfo.activeNN = res
+            }
+        })
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 /* eslint-disable no-new */
 getActiveNN().then(() => {
-  new Vue({
-    el: '#app',
-    router,
-    components: { App },
-    template: '<App/>',
-  })
+    new Vue({
+        el: '#app',
+        router,
+        components: { App },
+        template: '<App/>',
+    })
 })

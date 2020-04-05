@@ -107,8 +107,12 @@ export default ({
             // 拼接字符串
             let url = '/webhdfs/v1' + currentDir;
             url = url + '?op=LISTSTATUS&user.name=hdfs';
-
-            this.$axios.get(url)
+            this.$axios.get(this.$backend + '/get_hdfs_dir/', {
+                params: {
+                    'activeNN': this.$clusterInfo.activeNN.hostIP,
+                    'url': url
+                }
+            })
             .then(res => {
                 this.tableData = this.$processFunc.parseDirectory(res.data);
                 // 计算当前目录下的文件数量

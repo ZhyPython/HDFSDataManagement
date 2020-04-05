@@ -236,9 +236,16 @@ export default {
             let url = '/webhdfs/v1' + this.currentDir;
             // 防止当前目录最后一位是'/'，所以用append_path拼接字符串
             url = this.$processFunc.append_path(url, fileName);
-            url = url + '?op=DELETE&recursive=true&user.name=' + localStorage.getItem('username');
+            url = url 
+                  + '?op=DELETE&recursive=true&user.name='
+                  + localStorage.getItem('username');
             //axios调用接口访问hdfs目录
-            this.$axios.delete(url)
+            this.$axios.delete(this.$backend + '/delete_file/', {
+                data: {
+                    'activeNN': this.$clusterInfo.activeNN.hostIP,
+                    'url': url
+                }
+            })
             .then(res => {
                 // console.log(res);
                 if (res.status == 200) {
@@ -341,7 +348,11 @@ export default {
                   + tempPerm 
                   + '&user.name='
                   + localStorage.getItem('username');
-            this.$axios.put(url)
+            // put请求的参数
+            let forms = new FormData()
+            forms.append('activeNN', this.$clusterInfo.activeNN.hostIP)
+            forms.append('url', url)
+            this.$axios.put(this.$backend + '/set_permission/', forms)
             .then(res => {
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
@@ -377,12 +388,11 @@ export default {
             this.ownerDialogVisible = true;
             this.fileIndex = index;
             this.rowObj = row;
+            // 将输入框的值清空
+            this.owner = ''
         },
 
         setOwner() {
-            if (this.owner != '') {
-                this.btnText = '更改中...';
-            }
             let url = '/webhdfs/v1' 
                       + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
             url = url 
@@ -390,15 +400,18 @@ export default {
                   + this.owner 
                   + '&user.name='
                   + localStorage.getItem('username');
-            // 执行put请求
-            this.$axios.put(url)
+            // put请求的参数
+            let forms = new FormData()
+            forms.append('activeNN', this.$clusterInfo.activeNN.hostIP)
+            forms.append('url', url)
+            this.$axios.put(this.$backend + '/set_owner/', forms)
             .then(res => {
                 // console.log(res);
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
                     this.ownerDialogVisible = false;
-                    this.btnText = '更 改';
                     this.showData[this.fileIndex].owner = this.owner;
+                    // 将输入框的值清空
                     this.owner = '';
                     this.$notify.success({
                         title: "成功",
@@ -408,7 +421,6 @@ export default {
                 }
             })
             .catch(err => {
-                this.btnText = '更 改';
                 // console.log(err);
                 // 状态码
                 let status = err.response.status
@@ -426,12 +438,11 @@ export default {
             this.groupDialogVisible = true;
             this.fileIndex = index;
             this.rowObj = row;
+            // 将输入框的内容清空
+            this.group = '';
         },
 
         setGroup() {
-            if (this.group != '') {
-                this.btnText = '更改中...';
-            }
             let url = '/webhdfs/v1' 
                       + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
             url = url 
@@ -439,15 +450,18 @@ export default {
                   + this.group 
                   + '&user.name='
                   + localStorage.getItem('username')
-            // 执行put请求
-            this.$axios.put(url)
+            // put请求的参数
+            let forms = new FormData()
+            forms.append('activeNN', this.$clusterInfo.activeNN.hostIP)
+            forms.append('url', url)
+            this.$axios.put(this.$backend + '/set_group/', forms)
             .then(res => {
                 // console.log(res);
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
                     this.groupDialogVisible = false;
-                    this.btnText = '更 改';
                     this.showData[this.fileIndex].group = this.group;
+                    // 将输入框的内容清空
                     this.group = '';
                     this.$notify.success({
                         title: "成功",
@@ -457,7 +471,6 @@ export default {
                 }
             })
             .catch(err => {
-                this.btnText = '更 改';
                 // console.log(err);
                 // 状态码
                 let status = err.response.status
@@ -475,12 +488,11 @@ export default {
             this.replicationDialogVisible = true;
             this.fileIndex = index;
             this.rowObj = row;
+            // 将输入框的内容清空
+            this.replication = null;
         },
 
         setReplication() {
-            if (this.replication != '') {
-                this.btnText = '更改中...';
-            }
             let url = '/webhdfs/v1' 
                       + this.$processFunc.append_path(this.currentDir, this.rowObj.pathSuffix);
             url = url 
@@ -488,15 +500,18 @@ export default {
                   + this.replication 
                   + '&user.name='
                   + localStorage.getItem('username')
-            // 执行put请求
-            this.$axios.put(url)
+            // put请求的参数
+            let forms = new FormData()
+            forms.append('activeNN', this.$clusterInfo.activeNN.hostIP)
+            forms.append('url', url)
+            this.$axios.put(this.$backend + '/set_replication/', forms)
             .then(res => {
                 // console.log(res);
                 if (res.status == 200) {
                     // 关闭对话框，将按钮和输入框的内容恢复至初始状态
                     this.replicationDialogVisible = false;
-                    this.btnText = '更 改';
                     this.showData[this.fileIndex].replication = this.replication;
+                    // 将输入框的内容清空
                     this.replication = null;
                     this.$notify.success({
                         title: "成功",
@@ -506,8 +521,7 @@ export default {
                 }
             })
             .catch(err => {
-                this.btnText = '更 改';
-                console.log(err);
+                // console.log(err);
                 this.$notify.error({
                     title: "失败",
                     message: "更改文件副本数量失败",

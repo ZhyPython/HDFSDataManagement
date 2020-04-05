@@ -163,7 +163,8 @@ export default {
             // console.log(this.downloadUrl)
             this.$axios.get(this.$backend + '/download_file/', {
                 params: {
-                    url: this.downloadUrl
+                    'activeNN': this.$clusterInfo.activeNN.hostIP,
+                    'url': this.downloadUrl
                 },
                 responseType: 'blob',   // 表明服务器返回的数据类型
                 withCredentials: false,
@@ -201,7 +202,12 @@ export default {
         },
 
         open() {
-            this.$axios.get(this.getBlockInfoUrl)
+            this.$axios.get(this.$backend + '/get_block_info/', {
+                params: {
+                    'activeNN': this.$clusterInfo.activeNN.hostIP,
+                    'url': this.getBlockInfoUrl
+                }
+            })
             .then(res => {
                 if (res.status == 200) {
                     // console.log(res);
@@ -269,16 +275,20 @@ export default {
 
         // 获取datanodes节点
         getDNs() {
-            this.$axios.get(this.$backend + "/get_datanodes/")
+            this.$axios.get(this.$backend + "/get_datanodes/", {
+                params: {
+                    clusterName: this.$clusterInfo.cluster
+                }
+            })
             .then(res => {
-                // console.log(res.data.info)
+                console.log(res.data)
                 // 获取res.data.info中的键列表
-                let hostName = Object.keys(res.data.info)
+                let hostName = Object.keys(res.data)
                 for (let i = 0; i < hostName.length; i++) {
                     // 定义一个对象存储信息值
                     let temp = {}
                     temp['hostName'] = hostName[i]
-                    temp['hostIP'] = res.data.info[hostName[i]]
+                    temp['hostIP'] = res.data[hostName[i]]
                     // 将信息存入hosts中
                     this.hosts.push(temp)
                 }

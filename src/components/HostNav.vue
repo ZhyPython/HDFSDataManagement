@@ -63,7 +63,7 @@ export default {
             localStorage.removeItem('username')
             this.$router.push({path: '/'})
             // 调取后台接口，删除session
-            this.$axios.get(this.$backend + "/delete/")
+            this.$axios.get(this.$backend + "/delete_session/")
             .then(res => {
                 // console.log(res)
             })
@@ -76,7 +76,7 @@ export default {
             this.$axios.get(this.$backend + "/get_clusters/")
             .then(res => {
                 // console.log(res.data);
-                this.clusters = JSON.parse(res.data);
+                this.clusters = res.data;
             })
             .catch(err => {
                 console.log(err);
