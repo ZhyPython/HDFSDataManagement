@@ -115,7 +115,8 @@ export default {
         getMetrics(metric) {
             this.$axios.get(this.$backend + "/get_metrics/", {
                 params: {
-                    metric: metric
+                    metric: metric,
+                    clusterName: this.$clusterInfo.cluster
                 }
             })
             .then(res => {

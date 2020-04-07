@@ -13,7 +13,8 @@
                 class="host-menu"
                 default-active="0"
                 background-color="#545c64"
-                text-color="#fff">
+                text-color="#fff"
+                @select="handleSelect">
                 <template v-for="(cluster, index) in clusters">
                     <el-menu-item :index="index.toString()">
                         <i class="el-icon-menu"></i>
@@ -77,10 +78,35 @@ export default {
             .then(res => {
                 // console.log(res.data);
                 this.clusters = res.data;
+                // 增加一个集群
+                // this.clusters.push({'displayName': '集群2', 'name': 'Cluster 2'})
             })
             .catch(err => {
                 console.log(err);
             })
+        },
+
+        handleSelect(key, keyPath) {
+            // 获取选中的集群name
+            let clusterName = this.clusters[key].name
+            this.$clusterInfo.cluster = clusterName
+            // 获取active状态的namenode
+            let url = this.$backend
+                      + "/get_active_namenode/?clusterName="
+                      + clusterName
+            jQuery.ajax({
+                type: 'GET',
+                url: url,
+                dataType: 'json',
+                async: false,
+                success: function(res) {
+                    this.$clusterInfo.activeNN = res
+                },
+                error: function(err){
+                    // console.log(err)
+                }
+            })
+            console.log(this.$clusterInfo)
         },
     },
 }
