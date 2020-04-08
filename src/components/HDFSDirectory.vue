@@ -104,6 +104,16 @@ export default ({
 
     methods: {
         initDir(currentDir='/') {
+            // 若activeNN为空，则表格数据为空
+            if (Object.keys(this.$clusterInfo.activeNN).length == 0) {
+                this.tableData = []
+                this.$notify.error({
+                    title: "失败",
+                    message: "刷新目录表格失败",
+                    duration: 3000,
+                });
+                return
+            }
             // 拼接字符串
             let url = '/webhdfs/v1' + currentDir;
             url = url + '?op=LISTSTATUS&user.name=hdfs';
@@ -136,10 +146,10 @@ export default ({
             })
             .catch(err => {
                 this.$notify.error({
-                            title: "失败",
-                            message: "刷新目录表格失败",
-                            duration: 3000,
-                        });
+                    title: "失败",
+                    message: "刷新目录表格失败",
+                    duration: 3000,
+                });
             })
         },
 

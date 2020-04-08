@@ -24,7 +24,7 @@
             </el-menu>
         </el-aside>
         <el-main class="sys-main">
-            <HDFSTab></HDFSTab>
+            <HDFSTab ref="hdfsTab"></HDFSTab>
         </el-main>
     </el-container>
 </el-container>
@@ -79,7 +79,7 @@ export default {
                 // console.log(res.data);
                 this.clusters = res.data;
                 // 增加一个集群
-                // this.clusters.push({'displayName': '集群2', 'name': 'Cluster 2'})
+                this.clusters.push({'displayName': '集群2', 'name': 'Cluster 2'})
             })
             .catch(err => {
                 console.log(err);
@@ -87,10 +87,12 @@ export default {
         },
 
         handleSelect(key, keyPath) {
+            // 将this.$clusterInfo赋给局部变量，否则ajax回调函数无法赋值
+            let clusterInfo = this.$clusterInfo
             // 获取选中的集群name
             let clusterName = this.clusters[key].name
             this.$clusterInfo.cluster = clusterName
-            // 获取active状态的namenode
+            // 获取active状态的namenode,请求成功返回主机名称和IP，失败则置activeNN为{}
             let url = this.$backend
                       + "/get_active_namenode/?clusterName="
                       + clusterName
@@ -100,13 +102,17 @@ export default {
                 dataType: 'json',
                 async: false,
                 success: function(res) {
-                    this.$clusterInfo.activeNN = res
+                    // console.log(res)
+                    clusterInfo.activeNN = res
                 },
                 error: function(err){
-                    // console.log(err)
+                    clusterInfo.activeNN = {}
                 }
             })
-            console.log(this.$clusterInfo)
+            // console.log(this.$clusterInfo)
+            // 获取HDFSDirectory组件的实例，重新渲染目录数据
+            let hdfsDirIns = this.$refs.hdfsTab.$refs.hdfsDirectory
+            hdfsDirIns.initDir()
         },
     },
 }

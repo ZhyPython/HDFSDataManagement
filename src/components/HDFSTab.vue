@@ -5,7 +5,7 @@
     <el-tabs v-model="activeTab">
         <el-tab-pane name="first">
             <span slot="label"><i class="el-icon-notebook-2"></i> HDFS文件浏览</span>
-            <HDFSDirectory></HDFSDirectory>
+            <HDFSDirectory ref="hdfsDirectory"></HDFSDirectory>
         </el-tab-pane>
 
         <el-tab-pane name="second">

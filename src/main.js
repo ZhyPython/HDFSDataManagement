@@ -20,7 +20,10 @@ Vue.prototype.$qs = qs
 Vue.prototype.$cookie = cookie
 Vue.prototype.$echarts = echarts
 Vue.prototype.$backend = "http://127.0.0.1:8000"
-Vue.prototype.$clusterInfo = {}
+Vue.prototype.$clusterInfo = {
+    'cluster': null,
+    'activeNN': null
+}
 
 Axios.defaults.withCredentials = true
 Axios.defaults.headers.post['content-Type'] = 'application/json'
