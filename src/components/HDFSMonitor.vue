@@ -1,6 +1,6 @@
 <template>
 <!-- HDFS监控 -->
-<div class="hdfs-monitor">
+<div v-if="showChart" class="hdfs-monitor">
 <el-row :gutter="20">
     <el-col :span="12">
         <el-card shadow="hover" style="margin-bottom: 10px">
@@ -90,6 +90,8 @@ export default {
             },
             // 定时器
             timer: '',
+            // 控制是否展示图表
+            showChart: true,
         }
     },  
 
@@ -106,9 +108,16 @@ export default {
 
     methods: {
         handleMetrics() {
-            for (let i = 0; i < Object.keys(this.metrics).length; i++) {
-            // 获取数据
-            this.getMetrics(Object.keys(this.metrics)[i])
+            // 若activeNN为空，则监控数据为空
+            if (Object.keys(this.$clusterInfo.activeNN).length == 0) {
+                this.showChart = false
+                return
+            }
+            // 若activeNN不为空，则向接口请求获取监控数据
+            this.showChart = true
+            for (let key in this.metrics) {
+                // 获取数据
+                this.getMetrics(key)
             }
         },
 
@@ -151,6 +160,9 @@ export default {
                                    + " "
                                    + obj.unit
                         },
+                        itemStyle: {
+                            cursor: 'line'
+                        }
                     },
                     xAxis: {
                         type: 'datetime',

@@ -79,7 +79,7 @@ export default {
                 // console.log(res.data);
                 this.clusters = res.data;
                 // 增加一个集群
-                this.clusters.push({'displayName': '集群2', 'name': 'Cluster 2'})
+                // this.clusters.push({'displayName': '集群2', 'name': 'Cluster 2'})
             })
             .catch(err => {
                 console.log(err);
@@ -113,6 +113,9 @@ export default {
             // 获取HDFSDirectory组件的实例，重新渲染目录数据
             let hdfsDirIns = this.$refs.hdfsTab.$refs.hdfsDirectory
             hdfsDirIns.initDir()
+            // 获取HDFSMonitor组件的实例，重新渲染监控数据
+            let hdfsMonIns = this.$refs.hdfsTab.$refs.hdfsMonitor
+            hdfsMonIns.handleMetrics()
         },
     },
 }

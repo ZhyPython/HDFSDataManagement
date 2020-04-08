@@ -10,7 +10,7 @@
 
         <el-tab-pane name="second">
             <span slot="label"><i class="el-icon-pie-chart"></i> HDFS存储监控</span>
-            <HDFSMonitor></HDFSMonitor>
+            <HDFSMonitor ref="hdfsMonitor"></HDFSMonitor>
         </el-tab-pane>
 
         <el-tab-pane name="third">
