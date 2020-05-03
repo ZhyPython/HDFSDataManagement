@@ -69,12 +69,12 @@
             <el-input 
                 v-model.number="sqoopForm.mapNums" 
                 :validate-event="false" 
-                placeholder="Map的任务数量，决定着输出文件part-m-*的数量，默认为1" 
+                placeholder="Map的任务数量，决定着输出文件part-m-*的数量，最小为1" 
                 style="width: 400px">
             </el-input>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary" size="medium" @click="submitForm">导入数据</el-button>
+            <el-button type="primary" size="medium" @click="submitForm">{{ btnText }}</el-button>
             <el-button type="info" @click="resetForm" size="medium" plain>重置配置</el-button>
         </el-form-item>
     </el-form>
@@ -115,6 +115,7 @@ export default {
             })
         };
         return {
+            btnText: '导入数据',
             sqoopForm: {
                 dbType: '',     //数据库类型
                 dbName: '',     //数据库名
@@ -159,8 +160,16 @@ export default {
         submitForm() {
             this.$refs.sqoopConf.validate((valid, fields) => {
                 if (valid) {
+                    // 将按钮的文字更改为正在执行
+                    this.btnText = '执行中...'
+                    // 设置mapNums默认为1
+                    if (this.sqoopForm.mapNums == '') {
+                        this.sqoopForm.mapNums = 1
+                    }
                     // 将activeNN添加到表单数据中
                     this.sqoopForm.hostIP = this.$clusterInfo.activeNN.hostIP;
+                    // 将系统的当前用户添加到表单数据中
+                    this.sqoopForm.sysUser = localStorage.getItem('username');
                     // 定义post请求的数据的格式
                     let data = this.$qs.stringify(this.sqoopForm)
                     this.$axios({
@@ -171,8 +180,24 @@ export default {
                         },
                         data
                     })
-                    .then(res => {})
-                    .catch(err => {})
+                    .then(res => {
+                        if (res.data.error == "") {
+                            this.$notify.success({
+                                title: "成功",
+                                message: "任务已提交，改任务编号为：" + res.data.jobId,
+                                duration: 3000,
+                            });
+                            // 按钮文字更改回导入数据
+                            this.btnText = '导入数据';
+                        }
+                    })
+                    .catch(err => {
+                        this.$notify.error({
+                            title: "失败",
+                            message: "无法进行数据导入",
+                            duration: 3000,
+                        });
+                    })
                 }
             })
         },
