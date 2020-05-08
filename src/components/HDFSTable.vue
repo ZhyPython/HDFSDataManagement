@@ -227,9 +227,19 @@ export default {
 
     methods: {
         handleDelete(index, row) {
-            this.deleteDialogVisible = true;
-            this.fileName = row["pathSuffix"];
-            this.fileIndex = index;
+            // 判断当前用户是否为文件所有者或则hdfs超级用户
+            let currentUser = localStorage.getItem('username');
+            if (currentUser == row['owner'] || currentUser == 'hdfs') {
+                this.deleteDialogVisible = true;
+                this.fileName = row["pathSuffix"];
+                this.fileIndex = index;
+            } else {
+                this.$notify.warning({
+                    title: "警告",
+                    message: "当前用户不是文件所有者或超级用户！",
+                    duration: 3000,
+                });
+            }
         },
 
         deleteFile(fileName) {

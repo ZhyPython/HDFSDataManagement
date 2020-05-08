@@ -19,8 +19,8 @@
         </el-tab-pane>
 
         <el-tab-pane name="fourth">
-            <span slot="label"><i class="el-icon-collection"></i> 历史导入任务</span>
-            <HistoryJob></HistoryJob>
+            <span slot="label"><i class="el-icon-collection"></i> 数据导入任务</span>
+            <JobInfo></JobInfo>
         </el-tab-pane>
     </el-tabs>
 </el-card>
@@ -30,7 +30,7 @@
 <script>
 import HDFSDirectory from './HDFSDirectory.vue'
 import HDFSMonitor from './HDFSMonitor.vue'
-import HistoryJob from './HistoryJob.vue'
+import JobInfo from './JobInfo.vue'
 import SqoopImp from './SqoopImp.vue'
 
 export default {
@@ -39,7 +39,7 @@ export default {
     components: {
         HDFSDirectory,
         HDFSMonitor,
-        HistoryJob,
+        JobInfo,
         SqoopImp,
     },
 

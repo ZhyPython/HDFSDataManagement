@@ -20,6 +20,7 @@ Vue.prototype.$qs = qs
 Vue.prototype.$cookie = cookie
 Vue.prototype.$echarts = echarts
 Vue.prototype.$backend = "http://127.0.0.1:8000"
+// clusterInfo表示当前显示的信息属性哪个集群以及该集群的active namenode地址
 Vue.prototype.$clusterInfo = {
     'cluster': null,
     'activeNN': null

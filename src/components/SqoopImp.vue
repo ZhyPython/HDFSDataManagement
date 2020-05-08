@@ -74,7 +74,7 @@
             </el-input>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary" size="medium" @click="submitForm">{{ btnText }}</el-button>
+            <el-button type="primary" size="medium" :disabled="disabled" @click="submitForm">{{ btnText }}</el-button>
             <el-button type="info" @click="resetForm" size="medium" plain>重置配置</el-button>
         </el-form-item>
     </el-form>
@@ -116,6 +116,7 @@ export default {
         };
         return {
             btnText: '导入数据',
+            disabled: false,    // 按钮是否禁用，防止多次点击提交重复任务
             sqoopForm: {
                 dbType: '',     //数据库类型
                 dbName: '',     //数据库名
@@ -160,11 +161,12 @@ export default {
         submitForm() {
             this.$refs.sqoopConf.validate((valid, fields) => {
                 if (valid) {
-                    // 将按钮的文字更改为正在执行
-                    this.btnText = '执行中...'
+                    // 将按钮的文字更改为正在执行，并禁用按钮
+                    this.btnText = '执行中...';
+                    this.disabled = true;
                     // 设置mapNums默认为1
                     if (this.sqoopForm.mapNums == '') {
-                        this.sqoopForm.mapNums = 1
+                        this.sqoopForm.mapNums = 1;
                     }
                     // 将activeNN添加到表单数据中
                     this.sqoopForm.hostIP = this.$clusterInfo.activeNN.hostIP;
@@ -187,11 +189,15 @@ export default {
                                 message: "任务已提交，改任务编号为：" + res.data.jobId,
                                 duration: 3000,
                             });
-                            // 按钮文字更改回导入数据
+                            // 按钮文字更改回导入数据,解除禁用状态
                             this.btnText = '导入数据';
+                            this.disabled = false;
                         }
                     })
                     .catch(err => {
+                        // 按钮文字更改回导入数据,解除禁用状态
+                        this.btnText = '导入数据';
+                        this.disabled = false;
                         this.$notify.error({
                             title: "失败",
                             message: "无法进行数据导入",
