@@ -82,6 +82,8 @@
 </template>
 
 <script>
+import eventBus from '../assets/js/eventBus.js'
+
 export default {
     name: 'SqoopImp',
 
@@ -189,6 +191,8 @@ export default {
                                 message: "任务已提交，改任务编号为：" + res.data.jobId,
                                 duration: 3000,
                             });
+                            // 将jobId传到监控组件中
+                            eventBus.$emit("jobSubmitted", res.data.jobId);
                             // 按钮文字更改回导入数据,解除禁用状态
                             this.btnText = '导入数据';
                             this.disabled = false;
