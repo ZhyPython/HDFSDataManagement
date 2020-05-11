@@ -9,29 +9,31 @@
         :before-close="handleCloseDialog"
         @open="open"
         @close="close">
-        
-        <span><b>选择block块查看信息:</b></span>
-        <el-select 
-            v-model="value"  
-            @change="changeBlockInfo(value)"
-            style="width:25%">
-            <el-option
-                v-for="item in blocks"
-                :key="item.value"
-                :value="item.value"
-                :label="item.label">
-            </el-option>
-        </el-select>
 
-        <p>Block块的ID：{{ block.blockId }}</p>
-        <p>Block块的生成时间：{{ block.genTime }}</p>
-        <p>Block块的大小：{{ block.fileSize }}</p>
-        <p>
-            存储Block块的主机：
-            <ul v-for="host in block.hosts">
-                <li>{{ host }}</li>
-            </ul>
-        </p>
+        <div v-if="showBlockInfo">
+            <span><b>选择block块查看信息:</b></span>
+            <el-select 
+                v-model="value"  
+                @change="changeBlockInfo(value)"
+                style="width:25%">
+                <el-option
+                    v-for="item in blocks"
+                    :key="item.value"
+                    :value="item.value"
+                    :label="item.label">
+                </el-option>
+            </el-select>
+
+            <p>Block块的ID：{{ block.blockId }}</p>
+            <p>Block块的生成时间：{{ block.genTime }}</p>
+            <p>Block块的大小：{{ block.fileSize }}</p>
+            <p>
+                存储Block块的主机：
+                <ul v-for="host in block.hosts">
+                    <li>{{ host }}</li>
+                </ul>
+            </p>
+        </div>
         
         <!-- 内层的dialog，选择文件下载到的具体主机 -->
         <el-dialog
@@ -115,8 +117,8 @@ export default {
             hostIP: '',
             hosts: [],
             downloadPath: '/hdfs_download',
-            //下载文件到主机的按钮显示文字
-            btnFileToHost: "下 载",
+            btnFileToHost: "下 载",     // 下载文件到主机的按钮显示文字
+            showBlockInfo: true,        // 是否显示block信息
         }
     },
 
@@ -202,6 +204,7 @@ export default {
         },
 
         open() {
+            this.showBlockInfo = true;
             this.$axios.get(this.$backend + '/get_block_info/', {
                 params: {
                     'activeNN': this.$clusterInfo.activeNN.hostIP,
@@ -211,6 +214,11 @@ export default {
             .then(res => {
                 if (res.status == 200) {
                     // console.log(res);
+                    // 判断文件长度是否大于0，如果为0则不显示block信息
+                    if (res.data.LocatedBlocks.fileLength == 0) {
+                        this.showBlockInfo = false;
+                        return;
+                    }
                     // 获取文件在hdfs中的块信息
                     let arr = res.data.LocatedBlocks.locatedBlocks;
                     // console.log(arr);
@@ -281,7 +289,7 @@ export default {
                 }
             })
             .then(res => {
-                console.log(res.data)
+                // console.log(res.data)
                 // 获取res.data.info中的键列表
                 let hostName = Object.keys(res.data)
                 for (let i = 0; i < hostName.length; i++) {

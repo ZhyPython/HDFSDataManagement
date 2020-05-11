@@ -18,7 +18,7 @@
             size="medium" 
             plain
             icon="el-icon-upload"
-            @click="uploadDialogVisible = true">
+            @click="handleUpload">
         </el-button>
     </el-tooltip>
     <el-dialog
@@ -26,6 +26,14 @@
         :lock-scroll=false
         width="30%"
         :visible.sync="uploadDialogVisible">
+        <div style="margin-bottom: 20px">
+            <span>上传至：</span>
+            <el-input 
+                v-model="uploadDir" 
+                size="small" 
+                style="width: 80%; display: inline-block">
+            </el-input>
+        </div>
         <el-upload
             class="upload-btn"
             ref="upload"
@@ -88,19 +96,29 @@ export default {
         },
     },
 
+    computed: {
+    },
+
     data() {
         return {
             mkdirDialogVisible: false,
             uploadDialogVisible: false,
             btnText: '上传到集群',
-            inputDir: '',
+            inputDir: '',       // 新建目录
             fileList: [],
+            uploadDir: '',      // 上传文件目录
         }
     },
 
     methods: {
         fileSave(file, fileList) {
             this.fileList = fileList;
+        },
+
+        handleUpload() {
+            // 打开对话框，为上传目录赋初值为当前目录
+            this.uploadDialogVisible = true;
+            this.uploadDir = this.currentDir;
         },
 
         submitUpload() {
@@ -124,7 +142,7 @@ export default {
                 // 获取fileList中的File对象及文件名称，拼接字符串
                 let file = this.fileList[i].raw;
                 let fileName = file.name;
-                let url = '/webhdfs/v1' + this.currentDir
+                let url = this.$processFunc.append_path('/webhdfs/v1', this.uploadDir);
                 url = this.$processFunc.encode_path(
                     this.$processFunc.append_path(url, fileName)
                 );
