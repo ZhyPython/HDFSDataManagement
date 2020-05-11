@@ -179,7 +179,7 @@ export default {
                         }
                     })
                     .then(res => {
-                        console.log(res.data);
+                        // console.log(res.data);
                         // 格式化时间戳和内存
                         res.data[jobID].launchTime = this.$processFunc.dateToString(res.data[jobID].launchTime);
                         res.data[jobID].physicalMemory = this.$processFunc.formatBytes(res.data[jobID].physicalMemory);
@@ -194,6 +194,8 @@ export default {
                             duration: 3000,
                         });
                     })
+                    // 任务结束后更新hdfs目录
+                    this.$emit('refreshOutputDir');
                 }
             })
             .catch(err => {

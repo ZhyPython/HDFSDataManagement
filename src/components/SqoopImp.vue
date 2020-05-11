@@ -174,6 +174,8 @@ export default {
                     this.sqoopForm.hostIP = this.$clusterInfo.activeNN.hostIP;
                     // 将系统的当前用户添加到表单数据中
                     this.sqoopForm.sysUser = localStorage.getItem('username');
+                    // 将当前集群名称添加到表单数据中
+                    this.sqoopForm.clusterName = this.$clusterInfo.cluster;
                     // 定义post请求的数据的格式
                     let data = this.$qs.stringify(this.sqoopForm)
                     this.$axios({
@@ -196,9 +198,12 @@ export default {
                             // 按钮文字更改回导入数据,解除禁用状态
                             this.btnText = '导入数据';
                             this.disabled = false;
+                            // 将界面切换至数据导入任务界面
+                            this.$emit('switchTab');
                         }
                     })
                     .catch(err => {
+                        // console.log(err);
                         // 按钮文字更改回导入数据,解除禁用状态
                         this.btnText = '导入数据';
                         this.disabled = false;

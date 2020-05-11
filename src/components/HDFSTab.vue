@@ -15,12 +15,12 @@
 
         <el-tab-pane name="third">
             <span slot="label"><i class="el-icon-copy-document"></i> 数据导入</span>
-            <SqoopImp></SqoopImp>
+            <SqoopImp @switchTab="switchTab"></SqoopImp>
         </el-tab-pane>
 
         <el-tab-pane name="fourth">
             <span slot="label"><i class="el-icon-collection"></i> 数据导入任务</span>
-            <JobInfo></JobInfo>
+            <JobInfo @refreshOutputDir="refreshOutputDir"></JobInfo>
         </el-tab-pane>
     </el-tabs>
 </el-card>
@@ -51,7 +51,16 @@ export default {
     },
 
     methods: {
-        
+        refreshOutputDir() {
+            // 导入任务结束后刷新hdfs目录，使得能够查看输出目录
+            let ins = this.$refs.hdfsDirectory;
+            ins.initDir();
+        },
+
+        switchTab() {
+            this.activeTab = 'fourth';
+        },
+
     },
 }
 </script>
