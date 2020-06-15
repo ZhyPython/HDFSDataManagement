@@ -6,7 +6,7 @@
             <span>正在执行的任务</span>
         </div>
         <el-collapse>
-            <el-collapse-item v-for="jobMetric in currentJobMetrics">
+            <el-collapse-item v-for="(jobMetric, index) in currentJobMetrics" :key="index">
                 <template slot="title">
                     <el-row :gutter="20" style="font-size: 15px; width: 100%">
                         <el-col :span="8">
@@ -45,7 +45,7 @@
             <span>历史任务</span>
         </div>
         <el-collapse>
-            <el-collapse-item v-for="jobMetric in historyJobMetrics">
+            <el-collapse-item v-for="(jobMetric, index) in historyJobMetrics" :key="index">
                 <template slot="title">
                     <el-row :gutter="20" style="font-size: 15px; width: 100%">
                         <el-col :span="8">
@@ -132,7 +132,7 @@ export default {
                 // console.log(this.currentJobMetrics)
             })
             .catch(err => {
-                // console.log(err);
+                console.log(err);
                 this.$notify.error({
                     title: "失败",
                     message: "无法获取当前任务信息",
@@ -220,6 +220,10 @@ export default {
                 for(let i = 0; i < this.historyJobMetrics.length; i++) {
                     // 获取当前对象的键
                     let key = Object.keys(this.historyJobMetrics[i])[0];
+                    // 如果任务未查询到，直接输出为未查询到，并跳过
+                    if (this.historyJobMetrics[i][key].state == 'NOT_FOUND') {
+                        continue;
+                    }
                     this.historyJobMetrics[i][key].launchTime = this.$processFunc.dateToString(this.historyJobMetrics[i][key].launchTime);
                     this.historyJobMetrics[i][key].physicalMemory = this.$processFunc.formatBytes(this.historyJobMetrics[i][key].physicalMemory);
                     this.historyJobMetrics[i][key].virtualMemory = this.$processFunc.formatBytes(this.historyJobMetrics[i][key].virtualMemory);
@@ -258,5 +262,9 @@ export default {
 
 .KILLED {
     color: #909399;
+}
+
+.NOT_FOUND {
+    color: #fca903;
 }
 </style>>

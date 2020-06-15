@@ -22,6 +22,11 @@
             <span slot="label"><i class="el-icon-collection"></i> 数据导入任务</span>
             <JobInfo @refreshOutputDir="refreshOutputDir"></JobInfo>
         </el-tab-pane>
+
+        <el-tab-pane name="fifth">
+            <span slot="label"><i class="el-icon-collection"></i> 用户管理</span>
+            <UserManager></UserManager>
+        </el-tab-pane>
     </el-tabs>
 </el-card>
 </div>
@@ -32,6 +37,7 @@ import HDFSDirectory from './HDFSDirectory.vue'
 import HDFSMonitor from './HDFSMonitor.vue'
 import JobInfo from './JobInfo.vue'
 import SqoopImp from './SqoopImp.vue'
+import UserManager from './UserManager.vue'
 
 export default {
     name: 'HDFSTab',
@@ -41,6 +47,7 @@ export default {
         HDFSMonitor,
         JobInfo,
         SqoopImp,
+        UserManager,
     },
 
     data() {

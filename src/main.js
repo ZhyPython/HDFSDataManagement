@@ -11,6 +11,7 @@ import ProcessFunc from './process_func/hdfs_table'
 import cookie from './assets/js/cookie'
 import echarts from 'echarts'
 import HighchartsVue from 'highcharts-vue'
+import { color } from 'highcharts'
 
 Vue.use(ElementUI)
 Vue.use(HighchartsVue)
@@ -34,7 +35,13 @@ Vue.prototype.$processFunc = ProcessFunc
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
-    if (to.matched.some(item => item.meta.requireAuth)) {
+    // 登录状态下跳转到'/'会直接到内容界面
+    if (to.path == '/' && localStorage.getItem('username')) {
+        next({path: '/HostNav'})
+        return
+    }
+    // 跳转到内容页面会先请求验证
+    if (to.meta.requireAuth) {
         // 向后台发出请求，验证用户是否登录过
         Axios.get(Vue.prototype.$backend + "/valid/")
         .then(res => {
@@ -48,6 +55,7 @@ router.beforeEach((to, from, next) => {
         })
         .catch(err => {
             console.log(err)
+            next('/')
         })
     } else {
         next() // 确保一定要调用 next()

@@ -17,7 +17,7 @@
                 @select="handleSelect">
                 <template v-for="(cluster, index) in clusters">
                     <el-menu-item :index="index.toString()">
-                        <i class="el-icon-menu"></i>
+                        <i class="el-icon-s-home"></i>
                         <span slot="title">{{ cluster.displayName }}</span>
                     </el-menu-item>
                 </template>
