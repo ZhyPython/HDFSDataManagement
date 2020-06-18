@@ -23,7 +23,7 @@
             <JobInfo @refreshOutputDir="refreshOutputDir"></JobInfo>
         </el-tab-pane>
 
-        <el-tab-pane name="fifth">
+        <el-tab-pane name="fifth" v-if="showUsersFlag">
             <span slot="label"><i class="el-icon-collection"></i> 用户管理</span>
             <UserManager></UserManager>
         </el-tab-pane>
@@ -50,10 +50,15 @@ export default {
         UserManager,
     },
 
+    mounted () {
+        // 检测是否为管理员，判断是否需要渲染用户管理选项卡
+        this.checkAdminUser();
+    },
+
     data() {
         return {
             activeTab: 'first',
-            
+            showUsersFlag: false,
         };
     },
 
@@ -66,6 +71,23 @@ export default {
 
         switchTab() {
             this.activeTab = 'fourth';
+        },
+
+        checkAdminUser() {
+            this.$axios.get(this.$backend + '/check_admin_user/', {
+                params: {
+                    'username': localStorage.getItem('username')
+                }
+            })
+            .then(res => {
+                // console.log(res.data.flag)
+                if (res.data.flag === 0) {
+                    this.showUsersFlag = true;
+                }
+            })
+            .catch(err => {
+                console.log('获取用户信息失败：' + err)
+            })
         },
 
     },

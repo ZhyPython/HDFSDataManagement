@@ -57,14 +57,14 @@
             min-width="10%">
             <template slot-scope="scope">
                 <el-dropdown>
-                    <i class="el-icon-set-up" style="font-size: 25px; color: #409EFF;"></i>
+                    <i class="el-icon-more" style="font-size: 25px; color: #409EFF;"></i>
                     <el-dropdown-menu 
                         slot="dropdown">
-                        <el-dropdown-item @click.native="handleDelete(scope.$index, scope.row)">删除文件</el-dropdown-item>
-                        <el-dropdown-item @click.native="handlePermission(scope.$index, scope.row)">更改权限</el-dropdown-item>
-                        <el-dropdown-item @click.native="handleOwner(scope.$index, scope.row)">更改所有者</el-dropdown-item>
-                        <el-dropdown-item @click.native="handleGroup(scope.$index, scope.row)">更改用户组</el-dropdown-item>
-                        <el-dropdown-item @click.native="handleReplication(scope.$index, scope.row)">更改副本数量</el-dropdown-item>
+                        <el-dropdown-item icon="el-icon-delete" @click.native="handleDelete(scope.$index, scope.row)">删除文件</el-dropdown-item>
+                        <el-dropdown-item icon="el-icon-lock" @click.native="handlePermission(scope.$index, scope.row)">更改权限</el-dropdown-item>
+                        <el-dropdown-item icon="el-icon-user" @click.native="handleOwner(scope.$index, scope.row)">更改所有者</el-dropdown-item>
+                        <el-dropdown-item icon="el-icon-house" @click.native="handleGroup(scope.$index, scope.row)">更改用户组</el-dropdown-item>
+                        <el-dropdown-item icon="el-icon-document-copy" @click.native="handleReplication(scope.$index, scope.row)">更改副本数量</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </template>

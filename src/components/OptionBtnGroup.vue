@@ -7,8 +7,9 @@
             id="back-btn" 
             size="medium" 
             plain
+            type="primary"
             icon="el-icon-back" 
-            @click="goParentDir">
+            @click="goParentDir">目录回退
         </el-button>
     </el-tooltip>
 
@@ -17,8 +18,9 @@
             id="up-btn" 
             size="medium" 
             plain
+            type="primary"
             icon="el-icon-upload"
-            @click="handleUpload">
+            @click="handleUpload">文件上传
         </el-button>
     </el-tooltip>
     <el-dialog
@@ -56,13 +58,14 @@
         </span>
     </el-dialog>
 
-    <el-tooltip effect="dark" content="新建文件夹" placement="top">
+    <el-tooltip effect="dark" content="在当前目录新建文件夹" placement="top">
         <el-button 
             id="mkdir-btn"
             size="medium"
             plain
+            type="primary"
             icon="el-icon-folder-add"
-            @click="mkdirDialogVisible = true">
+            @click="mkdirDialogVisible = true">新建文件夹
         </el-button>
     </el-tooltip>
     <el-dialog

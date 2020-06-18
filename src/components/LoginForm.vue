@@ -59,6 +59,7 @@
                     type="password" 
                     v-model="loginFormData.password"
                     :validate-event="false"
+                    @keyup.enter.native="submitForm('loginForm')"
                     autocomplete="off">
                 </el-input>
             </el-form-item>
@@ -163,10 +164,13 @@ export default {
             if (data.info == 'success') {
                 // 跳转至目录界面
                 this.$router.push({path: 'HostNav'})
-            } else if (data.info == '当前用户不存在') {
-                this.$message.error('当前用户不存在')
-            } else if (data.info == '密码错误') {
-                this.$message.error('密码错误')
+            } else {
+                // this.$message.error(data.info)
+                this.$message({
+                    message: data.info,
+                    center: true,
+                    type: 'error'
+                })
             }
         },
 
@@ -202,11 +206,21 @@ export default {
                     .then(res => {
                         // console.log(res)
                         if (res.data.info == 'success') {
-                            this.$message.success('注册用户成功，请登录。')
+                            // this.$message.success('注册成功，请联系管理员审核账号后登录系统')
+                            this.$message({
+                                message: '注册成功，请联系管理员审核账号后登录系统',
+                                center: true,
+                                type: 'success'
+                            })
                             this.handleLogin()
                         }
                         if (res.data.info == '用户已存在') {
-                            this.$message.error('用户名已存在，请重新注册')
+                            // this.$message.error('用户名已存在，请重新注册')
+                            this.$message({
+                                message: '用户名已存在，请重新注册',
+                                center: true,
+                                type: 'error'
+                            })
                         }
                     })
                     .catch(err => {
