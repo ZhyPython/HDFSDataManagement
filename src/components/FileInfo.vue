@@ -2,14 +2,45 @@
 <!-- 查看文件信息 -->
 <div class="file-information">
     <el-dialog
+        class="file-dialog"
         :title="fileInfoTitle"
         :visible.sync="fileInfoDialogVisible"
         :lock-scroll=false
-        width="30%"
+        width="35%"
         :before-close="handleCloseDialog"
         @open="open"
         @close="close">
 
+        <div style="display: inline-block; width: 100%">
+            <el-button
+                type="text"
+                size="medium"
+                @click="downloadFile"
+                style="float: left"
+                >下载到本地
+            </el-button>
+            <el-button
+                type="text"
+                size="medium"
+                @click="innerVisible = true"
+                style="float: left"
+                >下载到节点
+            </el-button>
+            <el-button 
+                type="text" 
+                size="medium" 
+                @click="previewFile('last')" 
+                style="float: right">预览文件(尾部32K)
+            </el-button>
+            <el-button 
+                type="text" 
+                size="medium" 
+                @click="previewFile('first')" 
+                style="float: right">预览文件(首部32K)
+            </el-button>
+        </div>
+
+        <el-divider content-position="left">Block块信息</el-divider>
         <div v-if="showBlockInfo">
             <span><b>选择block块查看信息:</b></span>
             <el-select 
@@ -24,15 +55,25 @@
                 </el-option>
             </el-select>
 
-            <p>Block块的ID：{{ block.blockId }}</p>
-            <p>Block块的生成时间：{{ block.genTime }}</p>
-            <p>Block块的大小：{{ block.fileSize }}</p>
+            <p>Block块ID：{{ block.blockId }}</p>
+            <p>Block块池ID：{{ block.blockPoolId }}</p>
+            <p>文件大小：{{ this.$processFunc.formatBytes(block.fileSize) }}</p>
             <p>
                 存储Block块的主机：
                 <ul v-for="host in block.hosts">
                     <li>{{ host }}</li>
                 </ul>
             </p>
+        </div>
+
+        <!-- 显示预览文件内容 -->
+        <div v-show="showFileInfoText">
+            <el-divider content-position="left">文件内容</el-divider>
+            <el-input
+                type="textarea"
+                :autosize="{ minRows: 2, maxRows: 6}"
+                v-model="fileInfoText">
+            </el-input>
         </div>
         
         <!-- 内层的dialog，选择文件下载到的具体主机 -->
@@ -80,20 +121,6 @@
         </el-dialog>
 
         <span slot="footer" class="dialog-footer">
-            <el-button
-                type="primary"
-                size="medium"
-                @click="downloadFile"
-                style="float: left"
-                >下载到本地
-            </el-button>
-            <el-button
-                type="primary"
-                size="medium"
-                @click="innerVisible = true"
-                style="float: left"
-                >下载到节点
-            </el-button>
             <el-button 
                 type="primary" 
                 @click="handleCloseDialog"
@@ -119,6 +146,8 @@ export default {
             downloadPath: '/hdfs_download',
             btnFileToHost: "下 载",     // 下载文件到主机的按钮显示文字
             showBlockInfo: true,        // 是否显示block信息
+            showFileInfoText: false,    // 是否显示预览文件内容
+            fileInfoText: '',           // 预览文件的信息
         }
     },
 
@@ -159,6 +188,9 @@ export default {
     methods: {
         handleCloseDialog() {
             this.$emit('closeFileInfoDialog');
+            // 将文件预览框关闭并清空内容
+            this.showFileInfoText = false;
+            this.fileInfoText = '';
         },
 
         downloadFile() {
@@ -228,9 +260,9 @@ export default {
                         // console.log(blockInfo);
                         // 定义一个对象存储信息值
                         let infoObj = {};
-                        // block块ID，block生成时间，bolock大小
+                        // block块ID，block池ID，文件大小
                         let blockId = blockInfo.blockId;
-                        let genTime = blockInfo.generationStamp;
+                        let blockPoolId = blockInfo.blockPoolId;
                         let fileSize = blockInfo.numBytes;
                         // 获取当前数据块冗余存储在哪些主机上，定义一个数组存储主机名
                         let hostArr = [];
@@ -242,7 +274,7 @@ export default {
                         infoObj['value'] = i;
                         infoObj['label'] = 'Block' + i;
                         infoObj['blockId'] = blockId;
-                        infoObj['genTime'] = genTime;
+                        infoObj['blockPoolId'] = blockPoolId;
                         infoObj['fileSize'] = fileSize;
                         infoObj['hosts'] = hostArr;
                         // 将对象存入this.blocks
@@ -253,7 +285,7 @@ export default {
                     // test['value'] = 1;
                     // test['label'] = 'Block' + 1;
                     // test['blockId'] = 2;
-                    // test['genTime'] = 2;
+                    // test['blockPoolId'] = 2;
                     // test['fileSize'] = 2;
                     // test['hosts'] = ['hadoop1', 'hadoop2', 'hadoop3'];
                     // this.blocks.push(test);
@@ -345,7 +377,7 @@ export default {
                 }
             })
             .catch(err => {
-                console.log(err)
+                // console.log(err)
                 this.$notify.error({
                     title: "失败",
                     message: "无法下载文件到远程主机",
@@ -358,9 +390,56 @@ export default {
             // 设置关闭对话框后，清除下拉框保存的信息
             this.hostIP = ''
             this.hosts = []
-        }
+        },
+
+        previewFile(flag) {
+            this.showFileInfoText = true;
+            // 构造请求url
+            let url = '/webhdfs/v1' + this.currentDir;
+            // 防止当前目录最后一位是'/'，所以用append_path拼接字符串
+            url = this.$processFunc.append_path(url, this.fileName);
+
+            // 判断是请求文件的前32K字节还是后32K字节
+            if (flag === 'first') {
+                // 请求文件的前32K字节内容
+                url += '?op=OPEN&length=32768';
+            } else if (flag === 'last') {
+                // 请求文件的后32K数据,若文件大小小于32K,则直接显示
+                let offset = this.block.fileSize < 32 * 1024 ? 0 : this.block.fileSize - (32 * 1024);
+                url += '?op=OPEN&offset=' + offset
+            }
+
+            // 向后端请求数据
+            this.$axios.get(this.$backend + '/get_file_details/', {
+                params: {
+                    'activeNN': this.$clusterInfo.activeNN.hostIP,
+                    'url': url 
+                }
+            })
+            .then(res => {
+                this.fileInfoText = res.data;
+            })
+            .catch(err => {
+                this.$notify.error({
+                    title: "失败",
+                    message: "无法预览该类型文件",
+                    duration: 3000,
+                });
+            })
+        },
 
     }
 
 }
 </script>
+
+<style>
+.file-dialog .el-dialog__body {
+    padding-top: 0px;
+}
+
+/* .el-divider--horizontal{
+    margin-top: 15px;
+    margin-bottom: 15px;
+} */
+</style>
