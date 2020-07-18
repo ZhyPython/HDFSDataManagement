@@ -55,7 +55,7 @@
         :page-sizes="[10, 20, 50, 100]"
         :page-size="pageSize" 
         layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
+        :total="tableData.length">
         </el-pagination>
     </div>
 </div>
@@ -75,7 +75,6 @@ export default ({
             searchFlag: false,
             currentDir: '/',   
             searchString: '',
-            total: 0,
             currentPage: 1,
             pageSize: 10,    // 每页条数
         }
@@ -119,24 +118,31 @@ export default ({
                 }
             })
             .then(res => {
-                this.tableData = this.$processFunc.parseDirectory(res.data);
-                // 计算当前目录下的文件数量
-                this.total = this.tableData.length
-                // 格式化显示权限、大小、修改时间
-                // console.log(this.tableData);
-                for(let i = 0; i < this.tableData.length; i++) {
-                    // 转换所有者、所有组权限
-                    let tmpPermission = this.$processFunc.helperToPermission(this.tableData[i].permission);
-                    // 转换文件类型
-                    this.tableData[i].permission = this.$processFunc.helperToDirectory(this.tableData[i].type)
-                                                   + tmpPermission;
-                    // 转换大小
-                    this.tableData[i].length = this.$processFunc.formatBytes(this.tableData[i].length);
-                    this.tableData[i].blockSize = this.$processFunc.formatBytes(this.tableData[i].blockSize);
-                    // 转换修改时间
-                    this.tableData[i].modificationTime = this.$processFunc.dateToString(this.tableData[i].modificationTime);
-                    // 为searchData赋值，搜索文件时可直接在当前目录下搜索
-                    this.searchData = this.tableData
+                if (res.data.flag == true) {
+                    this.tableData = this.$processFunc.parseDirectory(res.data.data);
+                    // 格式化显示权限、大小、修改时间
+                    // console.log(this.tableData);
+                    for(let i = 0; i < this.tableData.length; i++) {
+                        // 转换所有者、所有组权限
+                        let tmpPermission = this.$processFunc.helperToPermission(this.tableData[i].permission);
+                        // 转换文件类型
+                        this.tableData[i].permission = this.$processFunc.helperToDirectory(this.tableData[i].type)
+                                                    + tmpPermission;
+                        // 转换大小
+                        this.tableData[i].length = this.$processFunc.formatBytes(this.tableData[i].length);
+                        this.tableData[i].blockSize = this.$processFunc.formatBytes(this.tableData[i].blockSize);
+                        // 转换修改时间
+                        this.tableData[i].modificationTime = this.$processFunc.dateToString(this.tableData[i].modificationTime);
+                        // 为searchData赋值，搜索文件时可直接在当前目录下搜索
+                        this.searchData = this.tableData
+                    }
+                } else {
+                    let msg = res.data.data;
+                    this.$notify.error({
+                    title: "失败",
+                    message: msg,
+                    duration: 3000,
+                });
                 }
             })
             .catch(err => {

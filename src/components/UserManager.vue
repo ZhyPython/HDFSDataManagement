@@ -22,9 +22,10 @@
 
     <el-table
         ref="usersTable"
-        :data="userData"
-        style="width: 100%"
-        @selection-change="handleSelectionChange">
+        :data="showData"
+        style="width: 100%; margin-bottom: 15px"
+        @selection-change="handleSelectionChange"
+        @filter-change="handleFilterChange">
 
         <el-table-column
             type="selection"
@@ -46,8 +47,8 @@
         <el-table-column
             label="账号状态"
             min-width="20%"
-            :filters="[{text: '已通过审核', value: '已通过审核'}, {text: '账号审核中', value: '账号审核中'}]"
-            :filter-method="filterHandler">
+            column-key="state"
+            :filters="[{text: '已通过审核', value: '已通过审核'}, {text: '账号审核中', value: '账号审核中'}]">
             <template slot-scope="scope">
                 <span v-if="scope.row.state=='已通过审核'" style="color: #67C23A">已通过审核</span>
                 <span v-if="scope.row.state=='账号审核中'" style="color: #fa0909">账号审核中</span>
@@ -88,6 +89,17 @@
         </el-table-column>
     </el-table>
 
+    <div class="user-pagination" align="center">
+        <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange" 
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 20]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="userData.length">
+        </el-pagination>
+    </div>
 
 </div>
 </template>
@@ -102,6 +114,19 @@ export default {
             multipleSelection: [],      // 多选的用户对象数组
             searchString: '',           // 输入框的搜索项
             searchData: [],             // 被搜索的变量
+            currentPage: 1,
+            pageSize: 5,
+        }
+    },
+
+    computed: {
+        showData: {
+            get() {
+                // 要显示的开始位置和终止位置
+                let begin = (this.currentPage - 1) * this.pageSize;
+                let end = this.currentPage * this.pageSize;
+                return this.userData.slice(begin, end);
+            }
         }
     },
 
@@ -401,9 +426,33 @@ export default {
             })
         },
 
-        filterHandler(value, row, column) {
-            return row.state === value;
+        handleFilterChange(filters) {
+            // console.log(filters);
+            let states = filters.state;
+            if (states.length == 0) {
+                // 如果filters的state属性为空列表，则表示不用过滤
+                this.getUsers();
+            } else {
+                // 判断表格数据是否在过滤条件之中
+                let tmp = [];
+                for (let i = 0; i < this.searchData.length; i++) {
+                    if (states.indexOf(this.searchData[i].state) >= 0) {
+                        tmp.push(this.searchData[i]); 
+                    }
+                }
+                this.userData = tmp;
+            }
         },
+
+        handleSizeChange(pageSize) {
+            // 回调参数为每页条数
+            this.pageSize = pageSize;
+        },
+
+        handleCurrentChange(currentPage) {
+            // 回调参数为当前页
+            this.currentPage = currentPage;
+        }
 
     }
 }
