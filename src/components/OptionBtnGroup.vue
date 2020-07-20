@@ -2,7 +2,7 @@
 <!-- 按钮栏，回退，上传文件，新建文件夹 -->
 <div class="opt-btn-group">
 
-    <el-tooltip effect="dark" content="回退至上级目录" placement="top">
+    <!-- <el-tooltip effect="dark" content="回退至上级目录" placement="top"> -->
         <el-button
             id="back-btn" 
             size="medium" 
@@ -11,18 +11,18 @@
             icon="el-icon-back" 
             @click="goParentDir">目录回退
         </el-button>
-    </el-tooltip>
+    <!-- </el-tooltip> -->
 
-    <el-tooltip effect="dark" content="上传文件到集群" placement="top">
+    <!-- <el-tooltip effect="dark" content="上传文件到集群" placement="top"> -->
         <el-button 
             id="up-btn" 
             size="medium" 
             plain
             type="primary"
             icon="el-icon-upload"
-            @click="handleUpload">文件上传
+            @click="handleUploadDialog">文件上传
         </el-button>
-    </el-tooltip>
+    <!-- </el-tooltip> -->
     <el-dialog
         title="上传文件"
         :lock-scroll=false
@@ -50,15 +50,15 @@
             </el-button>
         </el-upload>
         <span slot="footer" class="dialog-footer">
-            <el-button size="small" @click="uploadDialogVisible = false">取 消</el-button>
+            <el-button size="small" @click="handleCloseUploadDialog">取 消</el-button>
             <el-button style="margin-left: 10px;" 
                        size="small" type="success" 
-                       @click="submitUpload">{{ btnText }}
+                       @click="handleUpload">{{ btnText }}
             </el-button>
         </span>
     </el-dialog>
 
-    <el-tooltip effect="dark" content="在当前目录新建文件夹" placement="top">
+    <!-- <el-tooltip effect="dark" content="在当前目录新建文件夹" placement="top"> -->
         <el-button 
             id="mkdir-btn"
             size="medium"
@@ -67,7 +67,7 @@
             icon="el-icon-folder-add"
             @click="mkdirDialogVisible = true">新建文件夹
         </el-button>
-    </el-tooltip>
+    <!-- </el-tooltip> -->
     <el-dialog
         title="新建目录"
         :lock-scroll=false
@@ -110,6 +110,7 @@ export default {
             inputDir: '',       // 新建目录
             fileList: [],
             uploadDir: '',      // 上传文件目录
+            filesArray: [],    // 储存目录信息，为空时表示目录不存在或该目录下无文件
         }
     },
 
@@ -118,10 +119,80 @@ export default {
             this.fileList = fileList;
         },
 
-        handleUpload() {
+        handleUploadDialog() {
             // 打开对话框，为上传目录赋初值为当前目录
             this.uploadDialogVisible = true;
             this.uploadDir = this.currentDir;
+        },
+
+        handleUpload() {
+            // 先将上传目录的信息置空
+            this.filesArray = [];
+            // 获取上传目录下的所有文件名
+            let url = this.$processFunc.append_path('/webhdfs/v1', this.uploadDir);
+            url = url + '?op=LISTSTATUS&user.name=hdfs';
+            this.$axios.get(this.$backend + '/get_hdfs_dir/', {
+                params: {
+                    'activeNN': this.$clusterInfo.activeNN.hostIP,
+                    'url': url
+                }
+            })
+            .then(res => {
+                let data = res.data;
+                if (data.flag == true) {
+                    data = this.$processFunc.parseDirectory(data.data);
+                    for(let i = 0; i < data.length; i++) {
+                        this.filesArray.push(data[i].pathSuffix);
+                    }
+                }
+                // console.log(this.filesArray)
+                // 上传文件
+                this.submitUpload();
+            })
+            .catch(err => {
+                this.$notify.error({
+                    title: "失败",
+                    message: "无法获取上传目录信息",
+                    duration: 3000,
+                });
+            })
+        },
+
+        checkFilesExist(fileName) {
+            // 检查上传目录是否存在或该目录下是否无文件，不存在则直接上传
+            if (this.filesArray.length == 0) {
+                return fileName;
+            } else {
+                // 检查文件是否存在，如果存在则为文件名添加后缀
+                if (this.filesArray.indexOf(fileName) >= 0) {
+                    // 匹配文件类型的正则表达式
+                    let regFileType = /(.*)\.(.*)?/;
+                    let fileType = regFileType.exec(fileName);
+                    let suffix = '';
+                    if (fileType && fileType[2]) {
+                        suffix = fileType[2];
+                        fileName = fileType[1];
+                    }
+                    // 匹配文件序号的正则表达式
+                    let reg = new RegExp(fileName + '(\\((\\d+)\\))\?');
+                    // 保存文件副本的序号数组
+                    let serialNum = [];
+                    for (let i = 0; i < this.filesArray.length; i++) {
+                        let regArray = reg.exec(this.filesArray[i]);
+                        if (regArray && regArray[2]) {
+                            // console.log(regArray);
+                            serialNum.push(parseInt(regArray[2]))
+                        }
+                    }
+                    let nums = serialNum.length > 0 ? Math.max(...serialNum) + 1 : 1;
+                    suffix = suffix ? '.' + suffix : ''
+                    return fileName + '(' + nums + ')'  + suffix;
+                } 
+                else {
+                    // 文件名在目录中不存在，直接上传
+                    return fileName;
+                }
+            }
         },
 
         submitUpload() {
@@ -144,7 +215,11 @@ export default {
             for (let i = 0; i < this.fileList.length; i++) {
                 // 获取fileList中的File对象及文件名称，拼接字符串
                 let file = this.fileList[i].raw;
-                let fileName = file.name;
+                // console.log(file)
+                // 上传重复文件时，需要在文件名后面添加后缀
+                let fileName = this.checkFilesExist(file.name);
+                // let fileName = file.name;
+                // console.log(fileName);
                 let url = this.$processFunc.append_path('/webhdfs/v1', this.uploadDir);
                 url = this.$processFunc.encode_path(
                     this.$processFunc.append_path(url, fileName)
@@ -160,33 +235,33 @@ export default {
                 let url = Object.keys(files[i])[0];
                 // 上传文件时用form-data提交
                 let configs = {
-                    headers: {'Content-Type':'multipart/form-data'}
+                    headers: {'Content-Type':'multipart/form-data;charset=UTF-8'}
                 }
                 // put请求的参数
-                let forms = new FormData()
-                forms.append('activeNN', this.$clusterInfo.activeNN.hostIP)
-                forms.append('url', url)
-                forms.append('file', files[i][url])
-                this.$axios.put(this.$backend + '/upload_file/', forms, configs)
+                let data = new FormData()
+                data.append('activeNN', this.$clusterInfo.activeNN.hostIP)
+                data.append('url', url)
+                data.append('file', files[i][url])
+                
+                this.$axios.post(this.$backend + '/upload_file/', data, configs)
                 .then(res => {
                     // console.log(res)
                     if (res.data.info == 'success'){
-                        numCompleted++;
-                        if (numCompleted == files.length) {
-                            // 关闭对话框
-                            this.uploadDialogVisible = false;
-                            this.$notify.success({
-                                title: "成功",
-                                message: "上传文件成功！",
-                                duration: 3000,
-                            });
-                            // 清除上传列表
-                            this.$refs.upload.clearFiles();
-                            this.fileList = [];
-                            // 更新表格数据
-                            this.$emit('refreshDir', true, this.currentDir);
-                            this.btnText = '上传到集群'
-                        }
+                        this.$notify.success({
+                            title: "成功",
+                            message: "文件 \"" + files[i][url]["name"] + "\" 上传成功！",
+                            duration: 3000,
+                        });
+                        // 更新表格数据
+                        this.$emit('refreshDir', true, this.currentDir);
+                        // numCompleted++;
+                        // if (numCompleted == files.length) {
+                        //     // 关闭对话框
+                        //     // this.uploadDialogVisible = false;
+                        //     // 清除上传列表
+                        //     this.$refs.upload.clearFiles();
+                        //     this.fileList = [];
+                        // }
                     } else {
                         this.$notify.error({
                             title: "失败",
@@ -205,14 +280,26 @@ export default {
                 })
             }
             this.btnText = '上传到集群';
+            this.uploadDialogVisible = false;
+            // 清除上传列表
+            this.$refs.upload.clearFiles();
+            this.fileList = [];
         },
 
         handleRemove(file, fileList) {
+            this.fileList = fileList;
             this.$notify.success({
                 title: "成功",
                 message: "移除文件成功！",
                 duration: 3000,
             });
+        },
+
+        handleCloseUploadDialog() {
+            this.uploadDialogVisible = false;
+            // 清除上传列表
+            this.$refs.upload.clearFiles();
+            this.fileList = [];
         },
 
         btnMkdir() {

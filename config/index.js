@@ -26,6 +26,14 @@ module.exports = {
           '^/nn2':''
         }
       },
+
+      '/nn3':{
+        target: "http://192.168.112.103:9864",
+        changeOrigin:true,
+        pathRewrite:{
+          '^/nn3':''
+        }
+      },
     },
 
     // Various Dev Server settings

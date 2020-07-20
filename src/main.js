@@ -28,7 +28,7 @@ Vue.prototype.$clusterInfo = {
 }
 
 Axios.defaults.withCredentials = true
-Axios.defaults.headers.post['content-Type'] = 'application/json'
+// Axios.defaults.headers.post['content-Type'] = 'application/json'
 
 Vue.prototype.$processFunc = ProcessFunc
 
