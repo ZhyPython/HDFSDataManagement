@@ -208,7 +208,7 @@ export default {
 
             // 以特定的格式定义存储上传文件的列表
             let files = [];
-            let numCompleted = 0;
+            // let numCompleted = 0;
             
             // 将要传输的对象从this.fileList中取出放入files列表中
             // 以{url: File}为形式存储

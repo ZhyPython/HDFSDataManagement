@@ -27,11 +27,11 @@ module.exports = {
         }
       },
 
-      '/nn3':{
-        target: "http://192.168.112.103:9864",
+      '/hdfsManageBackend':{
+        target: "http://127.0.0.1:8000",
         changeOrigin:true,
         pathRewrite:{
-          '^/nn3':''
+          '^/hdfsManageBackend':''
         }
       },
     },
