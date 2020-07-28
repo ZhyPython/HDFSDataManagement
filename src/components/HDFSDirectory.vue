@@ -1,20 +1,6 @@
 <template>
 <!-- HDFS文件浏览界面 -->
 <div class="hdfs-dir">
-    <div class="dir-position">
-        <el-input 
-            v-model="currentDir" 
-            size="medium"
-            @keyup.enter.native="refreshDir(true, currentDir)">
-            <template slot="prepend">当前目录:</template>
-            <el-button 
-                slot="append" 
-                icon="el-icon-aim" 
-                @click="refreshDir(true, currentDir)">
-            </el-button>
-        </el-input>
-    </div>
-
     <div class="btn-group">
         <OptionBtnGroup 
             :currentDir="currentDir" 
@@ -34,6 +20,20 @@
             @input="searchFile"
             v-model="searchString"
             style="width: 400px">
+        </el-input>
+    </div>
+
+    <div class="dir-position">
+        <el-input 
+            v-model="currentDir" 
+            size="medium"
+            @keyup.enter.native="refreshDir(true, currentDir)">
+            <template slot="prepend">当前目录:</template>
+            <el-button 
+                slot="append" 
+                icon="el-icon-aim" 
+                @click="refreshDir(true, currentDir)">
+            </el-button>
         </el-input>
     </div>
 
