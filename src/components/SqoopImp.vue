@@ -6,7 +6,7 @@
         :model="sqoopForm" 
         :rules="rules"
         status-icon
-        label-width="100px">
+        label-width="150px">
         <el-form-item label="数据库类型" prop="dbType">
             <el-select 
                 v-model="sqoopForm.dbType" 
@@ -15,7 +15,32 @@
                 style="width: 400px">
                 <el-option label="MySQL" value="mysql"></el-option>
                 <el-option label="SQL Server" value="sqlserver"></el-option>
+                <el-option label="Oracle" value="oracle"></el-option>
             </el-select>
+        </el-form-item>
+        <template v-if="showOracleItem">
+            <el-form-item label="连接方式" prop="connectType">
+                <el-radio-group v-model="sqoopForm.connectType">
+                    <el-radio label="serviceName">Service_name连接</el-radio>
+                    <el-radio label="SID">SID连接</el-radio>
+                </el-radio-group>
+            </el-form-item>
+            <el-form-item label="连接名称" prop="connectName">
+                <el-input
+                    v-model="sqoopForm.connectName"
+                    :validate-event="false"
+                    placeholder="根据连接方式确定的Oracle连接名称"
+                    style="width: 400px">
+                </el-input>
+            </el-form-item>
+        </template>
+        <el-form-item label="主机" prop="dbHostIP">
+            <el-input
+                v-model="sqoopForm.dbHostIP"
+                :validate-event="false"
+                placeholder="数据库所在主机的IP地址"
+                style="width: 400px">
+            </el-input>
         </el-form-item>
         <el-form-item label="数据库名" prop="dbName">
             <el-input 
@@ -44,6 +69,7 @@
         <el-form-item label="密码" prop="password">
             <el-input 
                 v-model="sqoopForm.password" 
+                type="password" 
                 :validate-event="false" 
                 placeholder="连接数据库的密码" 
                 style="width: 400px">
@@ -118,20 +144,32 @@ export default {
         };
         return {
             btnText: '导入数据',
-            disabled: false,    // 按钮是否禁用，防止多次点击提交重复任务
+            disabled: false,        // 按钮是否禁用，防止多次点击提交重复任务
             sqoopForm: {
-                dbType: '',     //数据库类型
-                dbName: '',     //数据库名
-                tableName: '',  //表名
-                username: '',   //用户名
-                password: '',   //密码
-                jobName: '',    //mapreduce任务名
-                targetDir: '',  //输出目录
-                mapNums: ''    //map数量
+                dbType: '',         //数据库类型
+                connectType: '',    //Oracle连接方式
+                connectName: '',    //Oracle连接方式的名称
+                dbHostIP: '',       //数据库所在主机的IP
+                dbName: '',         //数据库名
+                tableName: '',      //表名
+                username: '',       //用户名
+                password: '',       //密码
+                jobName: '',        //mapreduce任务名
+                targetDir: '',      //输出目录
+                mapNums: ''         //map数量
             },
             rules: {
                 dbType: [
                     {required: true, message: '请选择数据库'}
+                ],
+                connectType: [
+                    {required: true, message: '请选择Oracle数据库的连接方式'}
+                ],
+                connectName: [
+                    {required: true, message: '请选择Oracle数据库的连接名称'}
+                ],
+                dbHostIP: [
+                    {required: true, message: '请输入数据库所在主机的IP', trigger: 'change'}
                 ],
                 dbName: [
                     {required: true, message: '请填写数据库名称'}
@@ -157,6 +195,13 @@ export default {
                 ],
             }
         }
+    },
+
+    computed: {
+        // 显示Oracle连接方式及名称
+        showOracleItem: function() {
+            return this.sqoopForm.dbType === 'oracle' ? true: false;
+        },
     },
 
     methods: {
@@ -187,10 +232,10 @@ export default {
                         data
                     })
                     .then(res => {
-                        if (res.data.error == "") {
+                        if (res.data.jobId !== "") {
                             this.$notify.success({
                                 title: "成功",
-                                message: "任务已提交，改任务编号为：" + res.data.jobId,
+                                message: "任务已提交，任务编号为：" + res.data.jobId,
                                 duration: 3000,
                             });
                             // 将jobId传到监控组件中
@@ -200,10 +245,19 @@ export default {
                             this.disabled = false;
                             // 将界面切换至数据导入任务界面
                             this.$emit('switchTab');
+                        } else {
+                            this.$notify.error({
+                                title: "失败",
+                                message: res.data.error,
+                                duration: 3000,
+                            });
+                            // 按钮文字更改回导入数据,解除禁用状态
+                            this.btnText = '导入数据';
+                            this.disabled = false;
                         }
                     })
                     .catch(err => {
-                        // console.log(err);
+                        console.log(err);
                         // 按钮文字更改回导入数据,解除禁用状态
                         this.btnText = '导入数据';
                         this.disabled = false;
