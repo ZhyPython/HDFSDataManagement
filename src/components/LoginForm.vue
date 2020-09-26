@@ -1,6 +1,40 @@
 <template>
 <!-- 登录注册表单 -->
 <div class="login">
+    <!-- 初始化超级管理员表单 -->
+    <div v-if="initSuperAdmin">
+    <el-card  shadow="hover" style="text-align: center; width: 400px">
+        <h2>初始化超级管理员</h2>
+        <el-form 
+            ref="initSuperAdminForm" 
+            :model="initSuperAdminFormData"
+            status-icon 
+            :rules="initSuperAdminRules">
+            <el-form-item label="超级管理员用户名" prop="superAdminName">
+                <el-input 
+                    v-model="initSuperAdminFormData.superAdminName"
+                    :validate-event="false">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="超级管理员用户密码" prop="superAdminPassword">
+                <el-input 
+                    type="password" 
+                    v-model="initSuperAdminFormData.superAdminPassword" 
+                    autocomplete="off"
+                    :validate-event="false">
+                </el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button 
+                    type="primary"
+                    @click="signUpSuperAdmin">注册超级管理员
+                </el-button>
+            </el-form-item>
+        </el-form>
+    </el-card>
+    </div>
+
+    <div v-else>
     <el-card v-show="signUpFlag" shadow="hover" style="text-align: center; width: 400px">
         <h2>用户注册</h2>
         <el-form 
@@ -73,6 +107,7 @@
             </el-form-item>
         </el-form>
     </el-card>
+    </div>
 </div>    
 </template>
 
@@ -102,6 +137,10 @@ export default {
             }
         };
         return {
+            initSuperAdminFormData: {
+                superAdminName: '',
+                superAdminPassword: ''
+            },
             loginFormData: {
                 username: '',
                 password: '',
@@ -111,8 +150,17 @@ export default {
                 signUpPassword: '',
                 signUpPassword2: '',
             },
+            initSuperAdmin: false,
             signUpFlag: false,
             // trigger: 'blur'为鼠标点击其他地方，trigger: 'change'为检验的字符变化的时候
+            initSuperAdminRules: {
+                superAdminName: [
+                    {required: true, message: '请输入超级管理员用户名称'}
+                ],
+                superAdminPassword: [
+                    {required: true, message: '请输入超级管理员用户密码'}
+                ]
+            },
             loginRules: {
                 username: [
                     {required: true, message: '请输入用户名'}
@@ -135,7 +183,26 @@ export default {
         }
     },
 
+    mounted () {
+        this.check_has_super_admin();
+    },
+
     methods: {
+        check_has_super_admin() {
+            this.$axios.get(this.$backend + '/check_has_super_admin/')
+            .then(res => {
+                // 判断是否有超级管理员用户，没有就显示初始化界面，否则显示登录界面
+                if (res.data.flag == false) {
+                    this.initSuperAdmin = true;
+                } else {
+                    this.initSuperAdmin = false;
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        },
+
         submitForm(formName) {
             // 校验表单后调用回调函数传入两个参数，校验结果和未通过校验的字段
             this.$refs[formName].validate((valid, fields) => {
@@ -172,6 +239,43 @@ export default {
                     type: 'error'
                 })
             }
+        },
+
+        signUpSuperAdmin() {
+            this.$refs.initSuperAdminForm.validate((valid, fields) => {
+                if (valid) {
+                    let data = this.$qs.stringify(this.initSuperAdminFormData)
+                    this.$axios({
+                        method: 'post',
+                        url: this.$backend + '/init_super_admin/', 
+                        headers: {
+                            'Content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        },
+                        data
+                    })
+                    .then(res => {
+                        // console.log(res)
+                        if (res.data.flag == true) {
+                            this.$message({
+                                message: '超级管理员初始化成功',
+                                center: true,
+                                type: 'success'
+                            })
+                            // 跳转到登录界面
+                            this.initSuperAdmin = false;
+                        } else {
+                            this.$message({
+                                message: '超级管理员初始化失败',
+                                center: true,
+                                type: 'error'
+                            })
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                }
+            })
         },
 
         handleLogin() {

@@ -1,4 +1,10 @@
+const sha256 = require("js-sha256").sha256;
+
 export default {
+    hashPwd: function(pwd) {
+        return sha256(pwd);
+    },
+
     parseDirectory: function(jsonObj) {
         // 返回的填充表格的数据,表格中每一行的数据对象
         var data = [];
