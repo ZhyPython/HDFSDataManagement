@@ -87,6 +87,10 @@ export default ({
                 let begin = (this.currentPage - 1) * this.pageSize;
                 let end = this.currentPage * this.pageSize;
                 return this.tableData.slice(begin, end);
+            },
+
+            set (newValue) {
+                return newValue === null ? 1 : newValue
             }
         },
     },

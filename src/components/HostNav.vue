@@ -14,7 +14,7 @@
         </el-dropdown>
     </el-header>
     <el-container>
-        <el-aside width="180px" class="sys-aside">
+        <el-aside width="220px" class="sys-aside">
             <el-menu
                 class="host-menu"
                 default-active="0"

@@ -210,7 +210,8 @@ export default {
         getHistoryJob() {
             this.$axios.get(this.$backend + '/get_history_job_metrics/', {
                 params: {
-                    'clusterName': this.$clusterInfo.cluster
+                    'clusterName': this.$clusterInfo.cluster,
+                    'username': localStorage.getItem('username')
                 }
             })
             .then(res => {
@@ -267,4 +268,4 @@ export default {
 .NOT_FOUND {
     color: #fca903;
 }
-</style>>
+</style>

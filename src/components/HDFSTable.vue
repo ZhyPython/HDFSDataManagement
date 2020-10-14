@@ -226,10 +226,24 @@ export default {
     },
 
     methods: {
-        handleDelete(index, row) {
-            // 判断当前用户是否为文件所有者或则hdfs超级用户
+        async handleDelete(index, row) {
+            // 判断当前用户是否为文件所有者或则是系统的superadmin
             let currentUser = localStorage.getItem('username');
-            if (currentUser == row['owner'] || currentUser == 'hdfs') {
+            let superAdminFlag = false;
+            try {
+                let res = await this.$axios.get(this.$backend + '/check_admin_user/', {
+                                    params: {
+                                        'username': localStorage.getItem('username')
+                                    }
+                                })
+                if (res.data.flag === 0) {
+                    superAdminFlag = true;
+                }
+            } catch (err) {
+                console.log(err)
+            }
+            
+            if (currentUser == row['owner'] || superAdminFlag === true) {
                 this.deleteDialogVisible = true;
                 this.fileName = row["pathSuffix"];
                 this.fileIndex = index;
@@ -286,7 +300,7 @@ export default {
 
         showDetailDialog(file) {
             if (file.type == 'FILE') {
-                // todo:打开对话框，查看文件信息，提供下载功能
+                // 打开对话框，查看文件信息，提供下载功能
                 this.fileInfoDialogVisible = true;
                 // 对话框标题带有文件名
                 this.fileName = file.pathSuffix;
@@ -388,7 +402,7 @@ export default {
                     title: "失败",
                     message: "权限不足，" 
                              + localStorage.getItem('username')
-                             + "用户不是当前文件的所有者",
+                             + "用户不是当前文件的所有者或hdfs超级用户",
                     duration: 3000,
                 });
             })
@@ -438,7 +452,7 @@ export default {
                 let msg = JSON.parse(err.response.request.response).RemoteException.message
                 this.$notify.error({
                     title: "失败",
-                    message: "当前用户没有权限更改所有者",
+                    message: "当前用户没有权限更改所有者，请使用hdfs超级管理员进行操作",
                     duration: 3000,
                 });
             })
@@ -488,18 +502,42 @@ export default {
                 let msg = JSON.parse(err.response.request.response).RemoteException.message
                 this.$notify.error({
                     title: "失败",
-                    message: "当前用户没有权限更改用户组",
+                    message: "当前用户没有权限更改用户组，请使用hdfs超级管理员进行操作",
                     duration: 3000,
                 });
             })
         },
         
-        handleReplication(index, row) {
-            this.replicationDialogVisible = true;
-            this.fileIndex = index;
-            this.rowObj = row;
-            // 将输入框的内容清空
-            this.replication = null;
+        async handleReplication(index, row) {
+            // 判断当前用户是否为文件所有者或则是系统的superadmin
+            let currentUser = localStorage.getItem('username');
+            let superAdminFlag = false;
+            try {
+                let res = await this.$axios.get(this.$backend + '/check_admin_user/', {
+                                    params: {
+                                        'username': localStorage.getItem('username')
+                                    }
+                                })
+                if (res.data.flag === 0) {
+                    superAdminFlag = true;
+                }
+            } catch (err) {
+                console.log(err)
+            }
+            
+            if (currentUser == row['owner'] || superAdminFlag === true) {
+                this.replicationDialogVisible = true;
+                this.fileIndex = index;
+                this.rowObj = row;
+                // 将输入框的内容清空
+                this.replication = null;
+            } else {
+                this.$notify.warning({
+                    title: "警告",
+                    message: "当前用户不是文件所有者或超级用户！",
+                    duration: 3000,
+                });
+            }
         },
 
         setReplication() {

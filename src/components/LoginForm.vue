@@ -207,7 +207,10 @@ export default {
             // 校验表单后调用回调函数传入两个参数，校验结果和未通过校验的字段
             this.$refs[formName].validate((valid, fields) => {
                 if (valid) {
-                    let data = this.$qs.stringify(this.loginFormData)
+                    let data = {};
+                    data['username'] = this.loginFormData.username;
+                    data['password'] = this.$processFunc.hashPwd(this.loginFormData.password);
+                    data = this.$qs.stringify(data)
                     this.$axios({
                         method: 'post',
                         url: this.$backend + '/login/', 
@@ -244,6 +247,9 @@ export default {
         signUpSuperAdmin() {
             this.$refs.initSuperAdminForm.validate((valid, fields) => {
                 if (valid) {
+                    this.initSuperAdminFormData.superAdminPassword = this.$processFunc.hashPwd(this.initSuperAdminFormData.superAdminPassword);
+                    // 传输hdfs超级用户的加密密码
+                    this.initSuperAdminFormData['hdfsPasswd'] = this.$processFunc.hashPwd('hdfs');
                     let data = this.$qs.stringify(this.initSuperAdminFormData)
                     this.$axios({
                         method: 'post',
@@ -297,7 +303,7 @@ export default {
                     // 格式化用户名和密码
                     let data = {}
                     data['username'] = this.signUpFormData.signUpUsername
-                    data['password'] = this.signUpFormData.signUpPassword
+                    data['password'] = this.$processFunc.hashPwd(this.signUpFormData.signUpPassword);
                     data = this.$qs.stringify(data)
                     this.$axios({
                         method: 'post',
