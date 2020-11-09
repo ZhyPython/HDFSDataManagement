@@ -177,7 +177,7 @@ export default {
                 if (valid) {
                     let data = {
                         'username': localStorage.getItem('username'),
-                        'passwd': this.passwdForm.newPasswd
+                        'passwd': this.$processFunc.hashPwd(this.passwdForm.newPasswd)
                     }
                     this.$axios.post(this.$backend + '/modify_passwd/', data)
                     .then(res => {
