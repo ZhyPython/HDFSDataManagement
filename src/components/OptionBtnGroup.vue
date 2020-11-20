@@ -238,37 +238,38 @@ export default {
                     headers: {'Content-Type':'multipart/form-data;charset=UTF-8'}
                 }
                 // put请求的参数
-                let data = new FormData()
-                data.append('activeNN', this.$clusterInfo.activeNN.hostIP)
-                data.append('url', url)
-                data.append('file', files[i][url])
-                
-                this.$axios.post(this.$backend + '/upload_file/', data, configs)
+                // let data = new FormData()
+                // data.append('activeNN', this.$clusterInfo.activeNN.hostIP)
+                // data.append('url', url)
+                // data.append('file', files[i][url])
+                let _self = this
+                let preURL = this.$clusterInfo.activeNN.hostIP == "192.168.112.101" ? "/nn1" : "/nn2"
+                this.$axios.put(preURL + url + "&noredirect=true")
                 .then(res => {
                     // console.log(res)
-                    if (res.data.info == 'success'){
-                        this.$notify.success({
-                            title: "成功",
-                            message: "文件 \"" + files[i][url]["name"] + "\" 上传成功！",
-                            duration: 3000,
-                        });
-                        // 更新表格数据
-                        this.$emit('refreshDir', true, this.currentDir);
-                        // numCompleted++;
-                        // if (numCompleted == files.length) {
-                        //     // 关闭对话框
-                        //     // this.uploadDialogVisible = false;
-                        //     // 清除上传列表
-                        //     this.$refs.upload.clearFiles();
-                        //     this.fileList = [];
-                        // }
-                    } else {
-                        this.$notify.error({
-                            title: "失败",
-                            message: files[i][url]["name"] + "上传失败",
-                            duration: 3000,
-                        });
-                    }
+                    jQuery.ajax({
+                        type: 'PUT',
+                        url: res.data.Location,
+                        data: files[i][url],
+                        processData: false,
+                        crossDomain: true,
+                        success: function(res) {
+                            _self.$notify.success({
+                                title: "成功",
+                                message: "文件 \"" + files[i][url]["name"] + "\" 上传成功！",
+                                duration: 3000,
+                            });
+                            // 更新表格数据
+                            _self.$emit('refreshDir', true, this.currentDir);
+                        },
+                        error: function(){
+                            _self.$notify.error({
+                                title: "失败",
+                                message: files[i][url]["name"] + "上传失败",
+                                duration: 3000,
+                            });
+                        }
+                    })
                 })
                 .catch(err => {
                     console.log(err)
@@ -278,6 +279,42 @@ export default {
                         duration: 3000,
                     });
                 })
+
+                // this.$axios.post(this.$backend + '/upload_file/', data, configs)
+                // .then(res => {
+                //     // console.log(res)
+                //     if (res.data.info == 'success'){
+                //         this.$notify.success({
+                //             title: "成功",
+                //             message: "文件 \"" + files[i][url]["name"] + "\" 上传成功！",
+                //             duration: 3000,
+                //         });
+                //         // 更新表格数据
+                //         this.$emit('refreshDir', true, this.currentDir);
+                //         // numCompleted++;
+                //         // if (numCompleted == files.length) {
+                //         //     // 关闭对话框
+                //         //     // this.uploadDialogVisible = false;
+                //         //     // 清除上传列表
+                //         //     this.$refs.upload.clearFiles();
+                //         //     this.fileList = [];
+                //         // }
+                //     } else {
+                //         this.$notify.error({
+                //             title: "失败",
+                //             message: files[i][url]["name"] + "上传失败",
+                //             duration: 3000,
+                //         });
+                //     }
+                // })
+                // .catch(err => {
+                //     console.log(err)
+                //     this.$notify.error({
+                //         title: "失败",
+                //         message: files[i][url]["name"] + "上传失败",
+                //         duration: 3000,
+                //     });
+                // })
             }
             this.btnText = '上传到集群';
             this.uploadDialogVisible = false;
